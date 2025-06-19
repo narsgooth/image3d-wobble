@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.0.0</title>
+	<title>image3dW v0.0.1</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -20,9 +20,9 @@
 	<input id="a_z" type="number" style="width:40px" oninput="a_z = this.value" step="1" onwheel=" a_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 
 	θ<sub>z</sub>
-	<input id="rotation_z" type="number" style="width:40px" oninput="image3d.rotation.z = this.value/180*Math.PI" step="5" onwheel="image3d.rotation.z = this.value/180*Math.PI=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
-	↔<input id="flip_horizontal" type="checkbox" oninput="image3d.scale.x *=-1"/>
-	↕<input id="flip_vertical" type="checkbox" oninput="image3d.scale.y *=-1"/>	
+	<input id="rotation_z" type="number" style="width:40px" oninput="mesh.rotation.z = this.value/180*Math.PI" step="5" onwheel="mesh.rotation.z = this.value/180*Math.PI=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
+	↔<input id="flip_horizontal" type="checkbox" oninput="mesh.scale.x *=-1"/>
+	↕<input id="flip_vertical" type="checkbox" oninput="mesh.scale.y *=-1"/>	
 	☰<input id="grid" type="checkbox" oninput="gridHelper.visible = !gridHelper.visible"/>	
 	f<sub>r</sub> (Hz)
 	<input id="frequency2" type="number" style="width:40px" oninput="frequency2 = this.value" step=".1" onwheel=" frequency2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
@@ -43,7 +43,7 @@
 	c<sup>n</sup>
 	<input id="complexity" type="number" style="width:40px" oninput="complexity = this.value" step="1" onwheel=" complexity = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 	d<sub>z</sub>
-	<input id="distance_z" type="number" style="width:40px" oninput="distance_z = parseFloat(this.value)" step="100" onwheel="distance_z = this.value = parseFloat(this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+	<input id="distance_z" type="number" style="width:40px" oninput="distance_z = parseFloat(this.value)" step="1" onwheel="distance_z = this.value = parseFloat(this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 	<!--γ
 	<input id="17" type="text" id="colorInput" style="width:70px"placeholder="#FFFFFF" oninput="if (/^#[0-9A-Fa-f]{6}$/.test(this.value)){ scene.background =new THREE.Color(this.value)}">
 	
@@ -114,15 +114,19 @@ document.body.appendChild(renderer.domElement);
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; // smooth camera motion
 
-const gridSize = 1000;
+const gridSize = 100;
 const gridDivisions = 10;
 const gridHelper = new THREE.GridHelper(gridSize, gridDivisions);
 scene.add(gridHelper);
 gridHelper.visible = false;
 
+var rotationGroup = new THREE.Group();
+var rotationPoint = new THREE.Vector3(0, 0, 0);
+rotationGroup.position.copy(rotationPoint);
 
 var material = null;
 var mesh = null;
+var geometry = null;
 // Load both height map and diffuse map
 const loader = new THREE.TextureLoader();
 animate();
@@ -158,21 +162,56 @@ function handleImageUpload(event) {
 				fragmentShader: document.getElementById('depthFragmentShader').textContent
 			});
 
-			const geometry = new THREE.PlaneGeometry(
+			geometry = new THREE.PlaneGeometry(
 				texture.image.width/100,
 				texture.image.height/100,
 				texture.image.width/10,
 				texture.image.height/10
 			);
-
+			removeMeshFromScene(mesh);
 			mesh = new THREE.Mesh(geometry, material);
-			scene.add(mesh);
+			//scene.add(mesh);
+			rotationGroup.add(mesh);
+			scene.add(rotationGroup);
 		});
 	};
 
 	reader.readAsDataURL(file);
 }
+function removeMeshFromScene(mesh) {
+	if (!mesh) return;
 
+	// Remove from parent/scene
+	if (mesh.parent) {
+		mesh.parent.remove(mesh);
+	}
+
+	// Dispose geometry
+	if (mesh.geometry) {
+		mesh.geometry.dispose();
+	}
+
+	// Dispose material(s)
+	if (Array.isArray(mesh.material)) {
+		mesh.material.forEach(mat => {
+			disposeMaterial(mat);
+		});
+	} else if (mesh.material) {
+		disposeMaterial(mesh.material);
+	}
+}
+
+function disposeMaterial(material) {
+	// Dispose textures if present
+	for (const key in material) {
+		const value = material[key];
+		if (value && value.isTexture) {
+			value.dispose();
+		}
+	}
+
+	material.dispose();
+}
 function handleDepthUpload(event) {
     const file = event.target.files[0];
     if (file) {
@@ -197,22 +236,21 @@ function handleDepthUpload(event) {
 let clock = new THREE.Clock();
 function animate(time) {
 	if(mesh!=null){
-	mesh.position.z = 1;
-	
-	mesh.rotation.x = theta_x/360.0*Math.PI *Math.sin(frequency2*Date.now()/1000.0 +phase_x/360*Math.PI);
-	mesh.rotation.y = theta_y/360.0*Math.PI *Math.sin(frequency2*Date.now()/1000.0 +phase_y/360*Math.PI);
-	mesh.rotation.z = theta_z/360.0*Math.PI *Math.sin(frequency2*Date.now()/1000.0 +phase_z/360*Math.PI);
-	material.uniforms.sTime.value = time / 1000;
-	material.uniforms.sHeight.value = height2/1;
-	material.uniforms.sWavelength.value = wavelength/1;
-	material.uniforms.a_x.value = a_x/1;
-	material.uniforms.a_y.value = a_y/1;
-	material.uniforms.a_z.value = a_z/1;
-	material.uniforms.sPhase_x.value = phase_x/1;
-	material.uniforms.sPhase_y.value = phase_y/1;
-	material.uniforms.sPhase_z.value = phase_z/1;
-	material.uniforms.sComplexity.value = complexity/1;
-	material.uniforms.sFrequency.value = frequency/1;
+		mesh.position.z = distance_z;
+		rotationGroup.rotation.x = theta_x/360.0*Math.PI *Math.sin(frequency2*Date.now()/1000.0 +phase_x/360*Math.PI);
+		rotationGroup.rotation.y = theta_y/360.0*Math.PI *Math.sin(frequency2*Date.now()/1000.0 +phase_y/360*Math.PI);
+		rotationGroup.rotation.z = theta_z/360.0*Math.PI *Math.sin(frequency2*Date.now()/1000.0 +phase_z/360*Math.PI);
+		material.uniforms.sTime.value = time / 1000;
+		material.uniforms.sHeight.value = height2/1;
+		material.uniforms.sWavelength.value = wavelength/1;
+		material.uniforms.a_x.value = a_x/1;
+		material.uniforms.a_y.value = a_y/1;
+		material.uniforms.a_z.value = a_z/1;
+		material.uniforms.sPhase_x.value = phase_x/1;
+		material.uniforms.sPhase_y.value = phase_y/1;
+		material.uniforms.sPhase_z.value = phase_z/1;
+		material.uniforms.sComplexity.value = complexity/1;
+		material.uniforms.sFrequency.value = frequency/1;
 	}
 	requestAnimationFrame(animate);
 	controls.update(); // required for damping or auto-rotate
