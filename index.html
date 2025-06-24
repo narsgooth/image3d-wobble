@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.0.1</title>
+	<title>image3dW v0.1.0</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -25,7 +25,7 @@
 	↕<input id="flip_vertical" type="checkbox" oninput="mesh.scale.y *=-1"/>	
 	☰<input id="grid" type="checkbox" oninput="gridHelper.visible = !gridHelper.visible"/>	
 	f<sub>r</sub> (Hz)
-	<input id="frequency2" type="number" style="width:40px" oninput="frequency2 = this.value" step=".1" onwheel=" frequency2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+	<input id="frequency2" type="number" style="width:40px" oninput="frequency2 = this.value" step="1" onwheel=" frequency2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 	r<sub>x</sub>
 	<input id="theta_x" type="number" style="width:40px" oninput="theta_x = this.value" onwheel="theta_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
 	r<sub>y</sub>
@@ -222,8 +222,6 @@ function handleDepthUpload(event) {
             function (texture) {
                 console.log("Texture loaded:", texture);
                 // Use the texture (e.g. apply it to a mesh)
-                // For example:
-				console.log('aaaa');
                 material.uniforms.heightMap.value = texture;
             },
             undefined,
@@ -277,6 +275,8 @@ function reset()
 		document.getElementById("a_x").value = a_x = parseFloat(config.settings.a_x);
 		document.getElementById("a_y").value = a_y = parseFloat(config.settings.a_y);
 		document.getElementById("a_z").value = a_z = parseFloat(config.settings.a_z);
+		
+		document.getElementById("rotation_z").value = rotation_z = parseFloat(config.settings.rotation_z);
 
 		document.getElementById("frequency2").value = frequency2 = parseFloat(config.settings.frequency2);
 		document.getElementById("theta_x").value = theta_x = parseFloat(config.settings.theta_x);
