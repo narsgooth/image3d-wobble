@@ -2,64 +2,102 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.1.0</title>
+	<title>image3dW v0.2.0</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
+	<script src="js/keyboard.js"></script>
 </head>
 <body>
-	f (Hz)
-	<input id="frequency" type="number" style="width:40px" oninput="frequency = this.value" step="1" onwheel=" frequency = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	λ
-	<input id="wavelength" type="number" style="width:40px" oninput="wavelength = this.value" step="1" onwheel=" wavelength = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	b<sub>x</sub>
-	<input id="a_x" type="number" style="width:40px" oninput="a_x = this.value" step="1" onwheel=" a_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	b<sub>y</sub>
-	<input id="a_y" type="number" style="width:40px" oninput="a_y = this.value" step="1" onwheel=" a_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	b<sub>z</sub>
-	<input id="a_z" type="number" style="width:40px" oninput="a_z = this.value" step="1" onwheel=" a_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-
-	θ<sub>z</sub>
-	<input id="rotation_z" type="number" style="width:40px" oninput="mesh.rotation.z = this.value/180*Math.PI" step="5" onwheel="mesh.rotation.z = this.value/180*Math.PI=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
-	↔<input id="flip_horizontal" type="checkbox" oninput="mesh.scale.x *=-1"/>
-	↕<input id="flip_vertical" type="checkbox" oninput="mesh.scale.y *=-1"/>	
-	☰<input id="grid" type="checkbox" oninput="gridHelper.visible = !gridHelper.visible"/>	
-	f<sub>r</sub> (Hz)
-	<input id="frequency2" type="number" style="width:40px" oninput="frequency2 = this.value" step="1" onwheel=" frequency2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	r<sub>x</sub>
-	<input id="theta_x" type="number" style="width:40px" oninput="theta_x = this.value" onwheel="theta_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
-	r<sub>y</sub>
-	<input id="theta_y" type="number" style="width:40px" oninput="theta_y = this.value" onwheel="theta_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
-	r<sub>z</sub>
-	<input id="theta_z" type="number" style="width:40px" oninput="theta_z = this.value" onwheel="theta_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>			
-	φ<sub>x</sub>
-	<input id="phase_x" type="number" style="width:40px" oninput="phase_x = this.value" step="90" onwheel="phase_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	φ<sub>y</sub>
-	<input id="phase_y" type="number" style="width:40px" oninput="phase_y = this.value" step="90" onwheel="phase_y= this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	φ<sub>z</sub>
-	<input id="phase_z" type="number" style="width:40px" oninput="phase_z = this.value" step="90" onwheel="phase_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	h
-	<input id="height2" type="number" style="width:40px" oninput="height2 = this.value" onwheel="height2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
-	c<sup>n</sup>
-	<input id="complexity" type="number" style="width:40px" oninput="complexity = this.value" step="1" onwheel=" complexity = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	d<sub>z</sub>
-	<input id="distance_z" type="number" style="width:40px" oninput="distance_z = parseFloat(this.value)" step="1" onwheel="distance_z = this.value = parseFloat(this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-	<!--γ
-	<input id="17" type="text" id="colorInput" style="width:70px"placeholder="#FFFFFF" oninput="if (/^#[0-9A-Fa-f]{6}$/.test(this.value)){ scene.background =new THREE.Color(this.value)}">
-	
-	∿
-			<select id="18" oninput="wave = this.value">
-		<option value="0">sin</option>
-		<option value="1">triangle</option>
-	</select>
-	-->
-	∠
-	<input id="perspective_angle" type="number" style="width:40px"  oninput=" camera.fov = this.value; camera.updateProjectionMatrix()"  step="5" onwheel="camera.fov = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step; camera.updateProjectionMatrix()"/>
-	<button type="button" onClick="reset()">↻</button>
-	img
-	<input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
-	depth</sub>
-	<input type="file" id="depthInput" accept="image/*" onchange="handleDepthUpload(event)">
+	<div id="controlPanel">
+		f<sub>m</sub> (Hz)
+		<input id="frequencyM" type="number" style="width:40px" oninput="frequencyM = this.value" step="1" onwheel=" frequencyM = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		d<sub style="color:red;">x</sub>
+		<input id="amplitude_x" type="number" style="width:40px" oninput="amplitude_x = this.value" step=".1" onwheel="amplitude_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
+		d<sub style="color:limeGreen;">y</sub>
+		<input id="amplitude_y" type="number" style="width:40px" oninput="amplitude_y = this.value" step=".1" onwheel="amplitude_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
+		d<sub style="color:blue;">z</sub>
+		<input id="amplitude_z" type="number" style="width:40px" oninput="amplitude_z = this.value" step=".1" onwheel="amplitude_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>			
+		θ<sub>z</sub>
+		<input id="rotation_z" type="number" style="width:40px" oninput="rotation_z = mesh.rotation.z = this.value/180*Math.PI" step="5" onwheel="rotation_z = mesh.rotation.z = this.value/180*Math.PI=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
+		↔<input id="flip_horizontal" type="checkbox" oninput="mesh.scale.x *=-1"/>
+		↕<input id="flip_vertical" type="checkbox" oninput="mesh.scale.y *=-1"/>	
+		☰<input id="grid" type="checkbox" oninput="gridHelper.visible = !gridHelper.visible"/>	
+		f<sub>r</sub> (Hz)
+		<input id="frequencyR" type="number" style="width:40px" oninput="frequencyR = this.value" step="1" onwheel=" frequencyR = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		r<sub style="color:red;">x</sub>
+		<input id="theta_x" type="number" style="width:40px" oninput="theta_x = this.value" onwheel="theta_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
+		r<sub style="color:limeGreen;">y</sub>
+		<input id="theta_y" type="number" style="width:40px" oninput="theta_y = this.value" onwheel="theta_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
+		r<sub style="color:blue;">z</sub>
+		<input id="theta_z" type="number" style="width:40px" oninput="theta_z = this.value" onwheel="theta_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>			
+		φ<sub style="color:red;">x</sub>
+		<input id="phase_x" type="number" style="width:40px" oninput="phase_x = this.value" step="90" onwheel="phase_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		φ<sub style="color:limeGreen;">y</sub>
+		<input id="phase_y" type="number" style="width:40px" oninput="phase_y = this.value" step="90" onwheel="phase_y= this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		φ<sub style="color:blue;">z</sub>
+		<input id="phase_z" type="number" style="width:40px" oninput="phase_z = this.value" step="90" onwheel="phase_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		h
+		<input id="height2" type="number" style="width:40px" oninput="height2 = this.value" onwheel="height2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
+		
+		d<sub>z</sub>
+		<input id="distance_z" type="number" style="width:40px" oninput="distance_z = parseFloat(this.value)" step="1" onwheel="distance_z = this.value = parseFloat(this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		
+		∠
+		<input id="perspective_angle" type="number" style="width:40px"  oninput=" camera.fov = this.value; camera.updateProjectionMatrix()"  step="5" onwheel="camera.fov = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step; camera.updateProjectionMatrix()"/>
+		
+		img
+		<input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
+		depth</sub>
+		<input type="file" id="depthInput" accept="image/*" onchange="handleDepthUpload(event)">
+		
+		<br>
+		f<sub>w</sub> (Hz)
+		<input id="frequencyW" type="number" style="width:40px" oninput="frequencyW = this.value" step="1" onwheel=" frequencyW = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		λ
+		<input id="wavelength" type="number" style="width:40px" oninput="wavelength = this.value" step="1" onwheel=" wavelength = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		w<sub style="color:red;">x</sub>
+		<input id="w_x" type="number" style="width:40px" oninput="w_x = this.value" step="1" onwheel=" w_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		w<sub style="color:limeGreen;">y</sub>
+		<input id="w_y" type="number" style="width:40px" oninput="w_y = this.value" step="1" onwheel=" w_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		w<sub style="color:blue;">z</sub>
+		<input id="w_z" type="number" style="width:40px" oninput="w_z = this.value" step="1" onwheel=" w_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		⌒<sup>near</sup>
+		<input id="hNear" type="number" style="width:40px" oninput="hNear = this.value" step=".1" onwheel=" hNear = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		⌒<sup>far</sup>
+		<input id="hFar" type="number" style="width:40px" oninput="hFar = this.value" step=".1" onwheel=" hFar = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		⌒<sup>𝑓</sup>
+		<input id="steepness" type="number" style="width:40px" oninput="steepness = this.value" step="1" onwheel=" steepness = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		
+		γ<sub>depth</sub>
+		<input id="brightnessDepth" type="number" style="width:40px" oninput="brightnessDepth = this.value" step=".1" onwheel=" brightnessDepth = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		θ<sub>xdepth</sub>
+		<input id="theta_depth_x" type="number" style="width:40px" oninput="theta_depth_x = this.value" step="1" onwheel=" theta_depth_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		θ<sub>ydepth</sub>
+		<input id="theta_depth_y" type="number" style="width:40px" oninput="theta_depth_y = this.value" step="1" onwheel=" theta_depth_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		<br>
+		γ
+		<input id="brightness" type="number" style="width:40px" oninput="brightness = this.value" step=".1" onwheel=" brightness = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		contrast
+		<input id="contrast" type="number" style="width:40px" oninput="contrast = this.value" step=".1" onwheel=" contrast = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		saturation
+		<input id="saturation" type="number" style="width:40px" oninput="saturation = this.value" step=".1" onwheel=" saturation = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		presets: 
+		<select id="presetDropdown" onchange="reset(this.value)">
+			<option value="presets/bounce.ini">Bounce</option>
+			<option value="presets/shake.ini" selected>Shake</option>
+			<option value="presets/wobble.ini">Wobble</option>
+			<option value="presets/oscillate.ini">Oscillate</option>
+			<option value="presets/vibrate.ini" selected>Vibrate</option>
+			<option value="presets/turn.ini">Turn</option>
+			<option value="presets/sway.ini">Sway</option>
+		</select>
+		<button type="button" onClick="randomize()">Randomize</button>
+		<button type="button" onClick="reset('config.ini')">↻</button>
+		subdivisions
+		<input id="subdivisions" type="number" style="width:40px" oninput="subdivisions = this.value;setSubdivisions(this.value)" step="10" onwheel=" brightnessDepth = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		
+	</div>
 <!-- VERTEX SHADER -->
 <script id="depthVertexShader" type="x-shader/x-vertex">
 	varying vec2 vUv;
@@ -68,22 +106,47 @@
 	uniform float sTime;
 	uniform float sHeight;
 	uniform float sWavelength;
-	uniform float a_x;
-	uniform float a_y;
-	uniform float a_z;
+	uniform float w_x;
+	uniform float w_y;
+	uniform float w_z;
 	uniform float sPhase_x;
 	uniform float sPhase_y;
 	uniform float sPhase_z;
+	uniform float sTheta_depth_x;
+	uniform float sTheta_depth_y;
 	uniform float sComplexity;
+	uniform float sSteepness;
+	uniform float sNear;
+	uniform float sFar;
+	uniform float sBrightnessDepth;
+	
+	uniform float sBrightness;
 	const float PI = 3.14159265359;
 	void main() {
 		vUv = uv;
 		vec4 h2 = texture2D(heightMap, uv);
+		h2.r += sTheta_depth_x*position.x/1000.0;
+		h2.r += sTheta_depth_y*position.y/1000.0;
+		float gaussian = exp(-pow( (h2.r-((sFar+sNear)/2.0))/
+									((sNear-sFar)/sSteepness),2.0)
+									);
+		
+		h2.r +=sBrightnessDepth;
+		if(h2.r<0.0)
+			h2.r = 0.0;
+		
+		if(h2.r>1.0)
+			h2.r = 1.0;
+		
+		
+		//vNormal = normalize(normalMatrix * normal);
 		vec3 displacment = vec3(
-									sin(h2.r*sWavelength-sTime*sFrequency+sPhase_x/360.0*PI)*pow(h2.r,sComplexity)*a_x,
-									sin(h2.r*sWavelength-sTime*sFrequency+sPhase_y/360.0*PI)*pow(h2.r,sComplexity)*a_y,
-									sin(h2.r*sWavelength-sTime*sFrequency+sPhase_z/360.0*PI)*pow(h2.r,sComplexity)*a_z);
-		vec3 displacedPosition = position + (normal*  h2.r * sHeight +displacment*.04)  ;
+									sin(h2.r*sWavelength-sTime*sFrequency+sPhase_x/360.0*2.0*PI)*gaussian*w_x,
+									sin(h2.r*sWavelength-sTime*sFrequency+sPhase_y/360.0*2.0*PI)*gaussian*w_y,
+									sin(h2.r*sWavelength-sTime*sFrequency+sPhase_z/360.0*2.0*PI)*gaussian*w_z);
+		vec3 displacedPosition = position + (normal*  h2.r * sHeight +displacment/100.0)  ;
+		
+		
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(displacedPosition, 1.0);
 	}
 </script>
@@ -92,10 +155,21 @@
 	<script id="depthFragmentShader" type="x-shader/x-fragment">
 	varying vec2 vUv;
 	uniform sampler2D diffuseMap;
+	uniform float sBrightness;
+	uniform float sContrast;
+	uniform float sSaturation;
 
 	void main() {
-	  vec3 color = texture2D(diffuseMap, vUv).rgb;
-	  gl_FragColor = vec4(color, 1.0);
+		vec3 color = texture2D(diffuseMap, vUv).rgb;
+		// Adjust brightness
+		color.rgb += sBrightness;
+		// Adjust contrast
+		color.rgb = (color.rgb - 0.5) * sContrast + 0.5;
+		// Saturation
+		float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114)); // perceptual luminance
+		color.rgb = mix(vec3(gray), color.rgb, sSaturation);
+		
+		gl_FragColor = vec4(color, 1.0);
 	}
 	</script>
 
@@ -105,7 +179,7 @@
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 60, innerWidth / innerHeight, 0.1, 100 );
 	
-camera.position.set(0,0,10);
+camera.position.set(0,0,20);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -127,11 +201,11 @@ rotationGroup.position.copy(rotationPoint);
 var material = null;
 var mesh = null;
 var geometry = null;
+var tex = null;
 // Load both height map and diffuse map
 const loader = new THREE.TextureLoader();
 animate();
 function handleImageUpload(event) {
-	console.log('a');
 	const file = event.target.files[0];
 	if (!file) return;
 	const reader = new FileReader();
@@ -140,20 +214,30 @@ function handleImageUpload(event) {
 
 		new THREE.TextureLoader().load(imageURL, function (texture) {
 			// Now create your material after texture is loaded
+			tex = texture;
 			const uniforms = {
 				sTime: { value: 0.0 },
 				sHeight: { value: 13.0 },
 				sWavelength: { value: 10.0 },
-				a_x: { value: 1.0 },
-				a_y: { value: 1.0 },
-				a_z: { value: 1.0 },
+				w_x: { value: 1.0 },
+				w_y: { value: 1.0 },
+				w_z: { value: 1.0 },
 				sPhase_x: { value: 1.0 },
 				sPhase_y: { value: 1.0 },
 				sPhase_z: { value: 1.0 },
 				sFrequency: { value: 1.0 },
 				sComplexity: { value: 1.0 },
 				diffuseMap: { value: texture },
-				heightMap: { value: texture } // Use same if you want
+				sNear: {value: 0.0},
+				sFar: {value: 0.0},
+				sTheta_depth_x: {value: 1.0},
+				sTheta_depth_y: {value: 1.0},
+				sSteepness: {value: 0.0},
+				heightMap: { value: texture }, // Use same if you want
+				sBrightness: {value: 0.0},
+				sContrast: {value: 0.0},
+				sSaturation: {value: 0.0},
+				sBrightnessDepth: { value: 0.0 } 
 			};
 
 			material = new THREE.ShaderMaterial({
@@ -165,8 +249,8 @@ function handleImageUpload(event) {
 			geometry = new THREE.PlaneGeometry(
 				texture.image.width/100,
 				texture.image.height/100,
-				texture.image.width/10,
-				texture.image.height/10
+				texture.image.width/3,
+				texture.image.height/3
 			);
 			removeMeshFromScene(mesh);
 			mesh = new THREE.Mesh(geometry, material);
@@ -177,6 +261,25 @@ function handleImageUpload(event) {
 	};
 
 	reader.readAsDataURL(file);
+}
+function setSubdivisions(n) {
+	if (!tex) return; // texture must be loaded first
+
+	// Dispose of old geometry if it exists
+	if (geometry) geometry.dispose();
+
+	// Create new geometry with n subdivisions
+	geometry = new THREE.PlaneGeometry(
+		tex.image.width / 100,
+		tex.image.height / 100,
+		n,
+		n
+	);
+
+	// Update mesh geometry
+	if (mesh) {
+		mesh.geometry = geometry;
+	}
 }
 function removeMeshFromScene(mesh) {
 	if (!mesh) return;
@@ -234,28 +337,42 @@ function handleDepthUpload(event) {
 let clock = new THREE.Clock();
 function animate(time) {
 	if(mesh!=null){
-		mesh.position.z = distance_z;
-		rotationGroup.rotation.x = theta_x/360.0*Math.PI *Math.sin(frequency2*Date.now()/1000.0 +phase_x/360*Math.PI);
-		rotationGroup.rotation.y = theta_y/360.0*Math.PI *Math.sin(frequency2*Date.now()/1000.0 +phase_y/360*Math.PI);
-		rotationGroup.rotation.z = theta_z/360.0*Math.PI *Math.sin(frequency2*Date.now()/1000.0 +phase_z/360*Math.PI);
-		material.uniforms.sTime.value = time / 1000;
-		material.uniforms.sHeight.value = height2/1;
-		material.uniforms.sWavelength.value = wavelength/1;
-		material.uniforms.a_x.value = a_x/1;
-		material.uniforms.a_y.value = a_y/1;
-		material.uniforms.a_z.value = a_z/1;
-		material.uniforms.sPhase_x.value = phase_x/1;
-		material.uniforms.sPhase_y.value = phase_y/1;
-		material.uniforms.sPhase_z.value = phase_z/1;
-		material.uniforms.sComplexity.value = complexity/1;
-		material.uniforms.sFrequency.value = frequency/1;
+		//position oscilation
+		mesh.position.x = Math.sin(frequencyM*time/1000.0 +phase_x/360*2*Math.PI)*amplitude_x; 
+		mesh.position.y = Math.sin(frequencyM*time/1000.0+phase_y/360*2*Math.PI)*amplitude_y; 
+		mesh.position.z = distance_z + Math.sin(frequencyM*time/1000.0 +phase_z/360*2*Math.PI)*amplitude_z; 		
+		//rotation oscilation
+		rotationGroup.rotation.x = theta_x/360.0*Math.PI *Math.sin(frequencyR*time/1000.0 +phase_x/360*2*Math.PI);
+		rotationGroup.rotation.y = theta_y/360.0*Math.PI *Math.sin(frequencyR*time/1000.0 +phase_y/360*2*Math.PI);
+		rotationGroup.rotation.z = theta_z/360.0*Math.PI *Math.sin(frequencyR*time/1000.0 +phase_z/360*2*Math.PI);
+		
+		//shader variables
+		material.uniforms.sTime.value = time / 1000;		
+		material.uniforms.sHeight.value = height2;
+		material.uniforms.sWavelength.value = wavelength;
+		material.uniforms.w_x.value = w_x;
+		material.uniforms.w_y.value = w_y;
+		material.uniforms.w_z.value = w_z;
+		material.uniforms.sPhase_x.value = phase_x;
+		material.uniforms.sPhase_y.value = phase_y;
+		material.uniforms.sPhase_z.value = phase_z;
+		material.uniforms.sNear.value = hNear;
+		material.uniforms.sFar.value = hFar;
+		material.uniforms.sSteepness.value = steepness;
+		material.uniforms.sFrequency.value = frequencyW;
+		material.uniforms.sBrightness.value = brightness;
+		material.uniforms.sContrast.value = contrast;
+		material.uniforms.sSaturation.value = saturation;
+		material.uniforms.sBrightnessDepth.value = brightnessDepth;
+		material.uniforms.sTheta_depth_x.value = theta_depth_x;
+		material.uniforms.sTheta_depth_y.value = theta_depth_y;
 	}
 	requestAnimationFrame(animate);
 	controls.update(); // required for damping or auto-rotate
 	renderer.render(scene, camera);
 }
 window.addEventListener('resize', handleResize);
-reset();
+reset("config.ini");
 function handleResize()
 {
 	const newWidth = window.innerWidth;
@@ -264,34 +381,74 @@ function handleResize()
 	camera.updateProjectionMatrix();
 	renderer.setSize(newWidth, newHeight);
 }
-function reset()
+function reset(preset)
 {
-	fetch('config.ini')
+	fetch(preset)
 	.then(response => response.text())
 	.then(text => {
 		const config = parseINI(text);
-		document.getElementById("frequency").value = frequency = parseFloat(config.settings.frequency);
+		//no override
+		if(preset == 'config.ini')
+		{
+			document.getElementById("brightnessDepth").value = brightnessDepth = parseFloat(config.settings.brightnessDepth);
+			document.getElementById("height2").value = height2 = parseFloat(config.settings.height2);
+		}
+		document.getElementById("frequencyM").value = frequencyM = parseFloat(config.settings.frequencyM);
 		document.getElementById("wavelength").value = wavelength = parseFloat(config.settings.wavelength);
-		document.getElementById("a_x").value = a_x = parseFloat(config.settings.a_x);
-		document.getElementById("a_y").value = a_y = parseFloat(config.settings.a_y);
-		document.getElementById("a_z").value = a_z = parseFloat(config.settings.a_z);
+		document.getElementById("w_x").value = w_x = parseFloat(config.settings.w_x);
+		document.getElementById("w_y").value = w_y = parseFloat(config.settings.w_y);
+		document.getElementById("w_z").value = w_z = parseFloat(config.settings.w_z);
 		
 		document.getElementById("rotation_z").value = rotation_z = parseFloat(config.settings.rotation_z);
 
-		document.getElementById("frequency2").value = frequency2 = parseFloat(config.settings.frequency2);
+		document.getElementById("frequencyR").value = frequencyR = parseFloat(config.settings.frequencyR);
 		document.getElementById("theta_x").value = theta_x = parseFloat(config.settings.theta_x);
 		document.getElementById("theta_y").value = theta_y = parseFloat(config.settings.theta_y);
 		document.getElementById("theta_z").value = theta_z = parseFloat(config.settings.theta_z);
 		document.getElementById("phase_x").value = phase_x = parseFloat(config.settings.phase_x);
 		document.getElementById("phase_y").value = phase_y = parseFloat(config.settings.phase_y);
 		document.getElementById("phase_z").value = phase_z = parseFloat(config.settings.phase_z);
-		document.getElementById("height2").value = height2 = parseFloat(config.settings.height2);
-		document.getElementById("complexity").value = complexity = parseFloat(config.settings.complexity);
+		
+		document.getElementById("amplitude_x").value = amplitude_x = parseFloat(config.settings.amplitude_x);
+		document.getElementById("amplitude_y").value = amplitude_y = parseFloat(config.settings.amplitude_y);
+		document.getElementById("amplitude_z").value = amplitude_z = parseFloat(config.settings.amplitude_z);
+		
+		document.getElementById("frequencyW").value = frequencyW = parseFloat(config.settings.frequencyW);
+		document.getElementById("steepness").value = steepness = parseFloat(config.settings.steepness);
+		document.getElementById("hNear").value = hNear = parseFloat(config.settings.hNear);
+		document.getElementById("hFar").value = hFar = parseFloat(config.settings.hFar);
+		
+		document.getElementById("subdivisions").value = subdivisions = parseFloat(config.settings.subdivisions);
+		
 		document.getElementById("distance_z").value = distance_z = parseFloat(config.settings.distance_z);
+		document.getElementById("brightness").value = brightness = parseFloat(config.settings.brightness);
+		
+		document.getElementById("theta_depth_x").value = theta_depth_x = parseFloat(config.settings.theta_depth_x);
+		document.getElementById("theta_depth_y").value = theta_depth_y = parseFloat(config.settings.theta_depth_y);
+		
+		document.getElementById("contrast").value = contrast = parseFloat(config.settings.contrast);
+		document.getElementById("saturation").value = saturation = parseFloat(config.settings.saturation);
+		
 		document.getElementById("perspective_angle").value = perspective_angle = parseFloat(config.settings.perspective_angle);
 		camera_z = parseFloat(config.settings.camera_z);
 	})
 	.catch(error => console.error('Error loading config.ini:', error));
+}
+function getRandom(value)
+{
+	return Math.random()*value*2-value;
+}
+function randomize()
+{
+	let max = 40;
+	document.getElementById("frequencyW").value = frequencyW = getRandom(max/2);
+	document.getElementById("wavelength").value = wavelength = getRandom(max);
+	document.getElementById("w_x").value = w_x = getRandom(max);
+	document.getElementById("w_y").value = w_y = getRandom(max);
+	document.getElementById("w_z").value = w_z = getRandom(max);
+	document.getElementById("phase_x").value = phase_x = getRandom(360);
+	document.getElementById("phase_y").value = phase_y = getRandom(360);
+	document.getElementById("phase_z").value = phase_z = getRandom(360);
 }
 function parseINI(text) {
   const result = {};
