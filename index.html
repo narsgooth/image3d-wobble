@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.2.0</title>
+	<title>image3dW v0.3.0</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -18,7 +18,7 @@
 		<input id="amplitude_y" type="number" style="width:40px" oninput="amplitude_y = this.value" step=".1" onwheel="amplitude_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
 		d<sub style="color:blue;">z</sub>
 		<input id="amplitude_z" type="number" style="width:40px" oninput="amplitude_z = this.value" step=".1" onwheel="amplitude_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>			
-		θ<sub>z</sub>
+		θ<sub style="color:blue;">z</sub>
 		<input id="rotation_z" type="number" style="width:40px" oninput="rotation_z = mesh.rotation.z = this.value/180*Math.PI" step="5" onwheel="rotation_z = mesh.rotation.z = this.value/180*Math.PI=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)"/>
 		↔<input id="flip_horizontal" type="checkbox" oninput="mesh.scale.x *=-1"/>
 		↕<input id="flip_vertical" type="checkbox" oninput="mesh.scale.y *=-1"/>	
@@ -47,15 +47,17 @@
 		<input id="perspective_angle" type="number" style="width:40px"  oninput=" camera.fov = this.value; camera.updateProjectionMatrix()"  step="5" onwheel="camera.fov = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step; camera.updateProjectionMatrix()"/>
 		
 		img
-		<input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
+		<input type="file" id="imageInput" accept="image/jpeg, image/gif, image/bmp, image/webp" onchange="handleImageUpload(event)">
 		depth</sub>
-		<input type="file" id="depthInput" accept="image/*" onchange="handleDepthUpload(event)">
+		<input type="file" id="depthInput" accept="image/png" onchange="handleDepthUpload(event)"><!--image/*-->
 		
 		<br>
 		f<sub>w</sub> (Hz)
 		<input id="frequencyW" type="number" style="width:40px" oninput="frequencyW = this.value" step="1" onwheel=" frequencyW = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		λ
 		<input id="wavelength" type="number" style="width:40px" oninput="wavelength = this.value" step="1" onwheel=" wavelength = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		w<sub>scale</sub>
+		<input id="scaleW" type="number" style="width:40px" oninput="scaleW = this.value" step=".1" onwheel=" scaleW = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		w<sub style="color:red;">x</sub>
 		<input id="w_x" type="number" style="width:40px" oninput="w_x = this.value" step="1" onwheel=" w_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		w<sub style="color:limeGreen;">y</sub>
@@ -69,12 +71,25 @@
 		⌒<sup>𝑓</sup>
 		<input id="steepness" type="number" style="width:40px" oninput="steepness = this.value" step="1" onwheel=" steepness = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		
-		γ<sub>depth</sub>
+		
+		
+		d<sub>depth</sub>
 		<input id="brightnessDepth" type="number" style="width:40px" oninput="brightnessDepth = this.value" step=".1" onwheel=" brightnessDepth = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		θ<sub>xdepth</sub>
+		θ<sub style="color:red;">x</sub><sub>depth</sub>
 		<input id="theta_depth_x" type="number" style="width:40px" oninput="theta_depth_x = this.value" step="1" onwheel=" theta_depth_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		θ<sub>ydepth</sub>
+		θ<sub style="color:green;">y</sub><sub>depth</sub>
 		<input id="theta_depth_y" type="number" style="width:40px" oninput="theta_depth_y = this.value" step="1" onwheel=" theta_depth_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		▭<sub style="color:red;">x</sub><sub>1</sub>
+		<input id="bx1" type="number" style="width:40px" oninput="bx1 = this.value" step=".1" onwheel=" bx1 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		▭<sub style="color:green;">y</sub><sub>1</sub>
+		<input id="by1" type="number" style="width:40px" oninput="by1 = this.value" step=".1" onwheel=" by1 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		▭<sub style="color:red;">x</sub><sub>2</sub>
+		<input id="bx2" type="number" style="width:40px" oninput="bx2 = this.value" step=".1" onwheel=" bx2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		▭<sub style="color:green;">y</sub><sub>2</sub>
+		<input id="by2" type="number" style="width:40px" oninput="by2 = this.value" step=".1" onwheel=" by2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		▭<sub>𝑓</sub>
+		<input id="steepnessB" type="number" style="width:40px" oninput="steepnessB = this.value" step=".1" onwheel=" steepnessB = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		▭<sub>visible</sub><input id="boxVisible" type="checkbox" oninput="boxVisible =!boxVisible"/>	
 		<br>
 		γ
 		<input id="brightness" type="number" style="width:40px" oninput="brightness = this.value" step=".1" onwheel=" brightness = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
@@ -85,93 +100,133 @@
 		presets: 
 		<select id="presetDropdown" onchange="reset(this.value)">
 			<option value="presets/bounce.ini">Bounce</option>
-			<option value="presets/shake.ini" selected>Shake</option>
-			<option value="presets/wobble.ini">Wobble</option>
-			<option value="presets/oscillate.ini">Oscillate</option>
-			<option value="presets/vibrate.ini" selected>Vibrate</option>
+			<option value="presets/shake.ini">Shake</option>
+			<option value="presets/wobble.ini"selected>Wobble</option>
+			<option value="presets/vibrate.ini">Vibrate</option>
 			<option value="presets/turn.ini">Turn</option>
+			<option value="presets/oscillate.ini">Oscillate</option>
 			<option value="presets/sway.ini">Sway</option>
 		</select>
-		<button type="button" onClick="randomize()">Randomize</button>
+		<button type="button" onClick="randomize()" >random</button>
 		<button type="button" onClick="reset('config.ini')">↻</button>
 		subdivisions
-		<input id="subdivisions" type="number" style="width:40px" oninput="subdivisions = this.value;setSubdivisions(this.value)" step="10" onwheel=" brightnessDepth = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		<input id="subdivisions" type="number" style="width:40px" oninput="subdivisions = this.value;setSubdivisions(this.value)" step="10" onwheel=" subdivisions = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		
 	</div>
 <!-- VERTEX SHADER -->
 <script id="depthVertexShader" type="x-shader/x-vertex">
-	varying vec2 vUv;
-	uniform sampler2D heightMap;
-	uniform float sFrequency;
-	uniform float sTime;
-	uniform float sHeight;
-	uniform float sWavelength;
-	uniform float w_x;
-	uniform float w_y;
-	uniform float w_z;
-	uniform float sPhase_x;
-	uniform float sPhase_y;
-	uniform float sPhase_z;
-	uniform float sTheta_depth_x;
-	uniform float sTheta_depth_y;
-	uniform float sComplexity;
-	uniform float sSteepness;
-	uniform float sNear;
-	uniform float sFar;
-	uniform float sBrightnessDepth;
+varying vec2 vUv;
+uniform sampler2D heightMap;
+uniform float sFrequency;
+uniform float sTime;
+uniform float sHeight;
+uniform float sWavelength;
+uniform float w_x;
+uniform float w_y;
+uniform float w_z;
+uniform float sPhase_x;
+uniform float sPhase_y;
+uniform float sPhase_z;
+uniform float sComplexity;
+uniform float sNear;
+uniform float sFar;
+uniform float sSteepness;
+uniform float bx1;
+uniform float by1;
+uniform float bx2;
+uniform float by2;
+uniform float steepnessB;
+
+uniform float sBrightnessDepth;
+uniform float sBrightness;
+uniform float sTheta_depth_x;
+uniform float sTheta_depth_y;
+
+const float PI = 3.14159265359;
+
+varying float vXCoord;//for fragment shader
+varying float vYCoord;//for fragment shader
+
+float gauss(float x, float close, float far, float multiplier){
+	return exp(-pow( (x-((far+close)/2.0))/
+								((close-far)/multiplier),2.0)
+								);
+}
+void main() {
+	vUv = uv;
+	vec4 h2 = texture2D(heightMap, uv);
+	h2.r += sTheta_depth_x*position.x/1000.0;
+	h2.r += sTheta_depth_y*position.y/1000.0;
+	float gaussian = gauss(h2.r,sNear,sFar,sSteepness);
+	float gaussianX = gauss(position.x,bx1,bx2,steepnessB);
+	float gaussianY = gauss(position.y,by1,by2,steepnessB);
 	
-	uniform float sBrightness;
-	const float PI = 3.14159265359;
-	void main() {
-		vUv = uv;
-		vec4 h2 = texture2D(heightMap, uv);
-		h2.r += sTheta_depth_x*position.x/1000.0;
-		h2.r += sTheta_depth_y*position.y/1000.0;
-		float gaussian = exp(-pow( (h2.r-((sFar+sNear)/2.0))/
-									((sNear-sFar)/sSteepness),2.0)
-									);
-		
-		h2.r +=sBrightnessDepth;
-		if(h2.r<0.0)
-			h2.r = 0.0;
-		
-		if(h2.r>1.0)
-			h2.r = 1.0;
-		
-		
-		//vNormal = normalize(normalMatrix * normal);
-		vec3 displacment = vec3(
-									sin(h2.r*sWavelength-sTime*sFrequency+sPhase_x/360.0*2.0*PI)*gaussian*w_x,
-									sin(h2.r*sWavelength-sTime*sFrequency+sPhase_y/360.0*2.0*PI)*gaussian*w_y,
-									sin(h2.r*sWavelength-sTime*sFrequency+sPhase_z/360.0*2.0*PI)*gaussian*w_z);
-		vec3 displacedPosition = position + (normal*  h2.r * sHeight +displacment/100.0)  ;
-		
-		
-		gl_Position = projectionMatrix * modelViewMatrix * vec4(displacedPosition, 1.0);
-	}
+	h2.r +=sBrightnessDepth;
+	if(h2.r<0.0)
+		h2.r = 0.0;
+	
+	if(h2.r>1.0)
+		h2.r = 1.0;
+	
+	
+	//vNormal = normalize(normalMatrix * normal);
+	vec3 displacment = vec3(
+								sin(h2.r*sWavelength-sTime*sFrequency+sPhase_x/360.0*2.0*PI)*w_x,
+								sin(h2.r*sWavelength-sTime*sFrequency+sPhase_y/360.0*2.0*PI)*w_y,
+								sin(h2.r*sWavelength-sTime*sFrequency+sPhase_z/360.0*2.0*PI)*w_z);
+	vec3 displacedPosition = position + (normal*  h2.r * sHeight +displacment*gaussian*gaussianX*gaussianY/100.0);
+	
+	vXCoord=position.x;//for fragment shader
+	vYCoord=position.y;//for fragment shader
+	
+	gl_Position = projectionMatrix * modelViewMatrix * vec4(displacedPosition, 1.0);
+}
 </script>
 
 <!-- FRAGMENT SHADER -->
-	<script id="depthFragmentShader" type="x-shader/x-fragment">
-	varying vec2 vUv;
-	uniform sampler2D diffuseMap;
-	uniform float sBrightness;
-	uniform float sContrast;
-	uniform float sSaturation;
+<script id="depthFragmentShader" type="x-shader/x-fragment">
+varying vec2 vUv;
+uniform sampler2D diffuseMap;
+uniform float sBrightness;
+uniform float sContrast;
+uniform float sSaturation;
+uniform bool boxVisible;
+//box
+uniform float bx1;
+uniform float by1;
+uniform float bx2;
+uniform float by2;
 
-	void main() {
-		vec3 color = texture2D(diffuseMap, vUv).rgb;
-		// Adjust brightness
-		color.rgb += sBrightness;
-		// Adjust contrast
-		color.rgb = (color.rgb - 0.5) * sContrast + 0.5;
-		// Saturation
-		float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114)); // perceptual luminance
-		color.rgb = mix(vec3(gray), color.rgb, sSaturation);
-		
-		gl_FragColor = vec4(color, 1.0);
+precision mediump float;
+varying float vXCoord;
+varying float vYCoord;
+
+void main() {
+	vec3 color = texture2D(diffuseMap, vUv).rgb;
+	// Adjust brightness
+	color.rgb += sBrightness;
+	// Adjust contrast
+	color.rgb = (color.rgb - 0.5) * sContrast + 0.5;
+	// Saturation
+	float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114)); // perceptual luminance
+	color.rgb = mix(vec3(gray), color.rgb, sSaturation);
+	
+	//box
+	if(boxVisible){
+		float epsilon = 0.01;
+		if (abs(vXCoord - bx1) < epsilon)
+			color = vec3(1.0, 0.0, 0.0); // highlight
+		if (abs(vXCoord - bx2) < epsilon)
+			color = vec3(1.0, 1.0, 0.0); // highlight
+		if (abs(vYCoord - by1) < epsilon)
+			color = vec3(0.0, 1.0, 0.0); // highlight
+		if (abs(vYCoord - by2) < epsilon)
+			color = vec3(0.0, 1.0, 1.0); // highlight
 	}
-	</script>
+	
+	gl_FragColor = vec4(color, 1.0);
+}
+</script>
 
 <script>
 
@@ -188,12 +243,17 @@ document.body.appendChild(renderer.domElement);
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; // smooth camera motion
 
+//Grid
 const gridSize = 100;
 const gridDivisions = 10;
 const gridHelper = new THREE.GridHelper(gridSize, gridDivisions);
 scene.add(gridHelper);
 gridHelper.visible = false;
 
+//gaussian box
+var boxVisible = false;
+
+//Mesh Rotation
 var rotationGroup = new THREE.Group();
 var rotationPoint = new THREE.Vector3(0, 0, 0);
 rotationGroup.position.copy(rotationPoint);
@@ -235,9 +295,15 @@ function handleImageUpload(event) {
 				sSteepness: {value: 0.0},
 				heightMap: { value: texture }, // Use same if you want
 				sBrightness: {value: 0.0},
+				sBrightnessDepth: {value: 0.0},
 				sContrast: {value: 0.0},
 				sSaturation: {value: 0.0},
-				sBrightnessDepth: { value: 0.0 } 
+				bx1: {value: 0.0},
+				bx2: {value: 0.0},
+				by1: {value: 0.0},
+				by2: {value: 0.0},
+				steepnessB: { value: 0.0 },
+				boxVisible: { value: false }
 			};
 
 			material = new THREE.ShaderMaterial({
@@ -334,6 +400,9 @@ function handleDepthUpload(event) {
         );
     }
 }
+let scaleW = 1;
+document.getElementById('scaleW').value = 1;
+
 let clock = new THREE.Clock();
 function animate(time) {
 	if(mesh!=null){
@@ -350,9 +419,9 @@ function animate(time) {
 		material.uniforms.sTime.value = time / 1000;		
 		material.uniforms.sHeight.value = height2;
 		material.uniforms.sWavelength.value = wavelength;
-		material.uniforms.w_x.value = w_x;
-		material.uniforms.w_y.value = w_y;
-		material.uniforms.w_z.value = w_z;
+		material.uniforms.w_x.value = w_x*scaleW;
+		material.uniforms.w_y.value = w_y*scaleW;
+		material.uniforms.w_z.value = w_z*scaleW;
 		material.uniforms.sPhase_x.value = phase_x;
 		material.uniforms.sPhase_y.value = phase_y;
 		material.uniforms.sPhase_z.value = phase_z;
@@ -366,6 +435,12 @@ function animate(time) {
 		material.uniforms.sBrightnessDepth.value = brightnessDepth;
 		material.uniforms.sTheta_depth_x.value = theta_depth_x;
 		material.uniforms.sTheta_depth_y.value = theta_depth_y;
+		material.uniforms.bx1.value = bx1;
+		material.uniforms.bx2.value = bx2;
+		material.uniforms.by1.value = by1;
+		material.uniforms.by2.value = by2;
+		material.uniforms.steepnessB.value = steepnessB;
+		material.uniforms.boxVisible.value = boxVisible;
 	}
 	requestAnimationFrame(animate);
 	controls.update(); // required for damping or auto-rotate
@@ -390,8 +465,35 @@ function reset(preset)
 		//no override
 		if(preset == 'config.ini')
 		{
+			scaleW= 1;
 			document.getElementById("brightnessDepth").value = brightnessDepth = parseFloat(config.settings.brightnessDepth);
 			document.getElementById("height2").value = height2 = parseFloat(config.settings.height2);
+
+			document.getElementById("steepness").value = steepness = parseFloat(config.settings.steepness);
+			document.getElementById("hNear").value = hNear = parseFloat(config.settings.hNear);
+			document.getElementById("hFar").value = hFar = parseFloat(config.settings.hFar);
+			
+			document.getElementById("subdivisions").value = subdivisions = parseFloat(config.settings.subdivisions);
+		
+			document.getElementById("theta_depth_x").value = theta_depth_x = parseFloat(config.settings.theta_depth_x);
+			document.getElementById("theta_depth_y").value = theta_depth_y = parseFloat(config.settings.theta_depth_y);
+			
+			document.getElementById("perspective_angle").value = perspective_angle = parseFloat(config.settings.perspective_angle);
+			camera_z = parseFloat(config.settings.camera_z);
+						
+			document.getElementById("brightness").value = brightness = parseFloat(config.settings.brightness);
+			
+			document.getElementById("contrast").value = contrast = parseFloat(config.settings.contrast);
+			document.getElementById("saturation").value = saturation = parseFloat(config.settings.saturation);
+			
+			document.getElementById("distance_z").value = distance_z = parseFloat(config.settings.distance_z);
+			
+			document.getElementById("bx1").value = bx1 = parseFloat(config.settings.bx1);
+			document.getElementById("bx2").value = bx2 = parseFloat(config.settings.bx2);
+			document.getElementById("by1").value = by1 = parseFloat(config.settings.by1);
+			document.getElementById("by2").value = by2 = parseFloat(config.settings.by2);
+			document.getElementById("steepnessB").value = steepnessB = parseFloat(config.settings.steepnessB);
+			boxVisible = false;
 		}
 		document.getElementById("frequencyM").value = frequencyM = parseFloat(config.settings.frequencyM);
 		document.getElementById("wavelength").value = wavelength = parseFloat(config.settings.wavelength);
@@ -414,23 +516,8 @@ function reset(preset)
 		document.getElementById("amplitude_z").value = amplitude_z = parseFloat(config.settings.amplitude_z);
 		
 		document.getElementById("frequencyW").value = frequencyW = parseFloat(config.settings.frequencyW);
-		document.getElementById("steepness").value = steepness = parseFloat(config.settings.steepness);
-		document.getElementById("hNear").value = hNear = parseFloat(config.settings.hNear);
-		document.getElementById("hFar").value = hFar = parseFloat(config.settings.hFar);
 		
-		document.getElementById("subdivisions").value = subdivisions = parseFloat(config.settings.subdivisions);
 		
-		document.getElementById("distance_z").value = distance_z = parseFloat(config.settings.distance_z);
-		document.getElementById("brightness").value = brightness = parseFloat(config.settings.brightness);
-		
-		document.getElementById("theta_depth_x").value = theta_depth_x = parseFloat(config.settings.theta_depth_x);
-		document.getElementById("theta_depth_y").value = theta_depth_y = parseFloat(config.settings.theta_depth_y);
-		
-		document.getElementById("contrast").value = contrast = parseFloat(config.settings.contrast);
-		document.getElementById("saturation").value = saturation = parseFloat(config.settings.saturation);
-		
-		document.getElementById("perspective_angle").value = perspective_angle = parseFloat(config.settings.perspective_angle);
-		camera_z = parseFloat(config.settings.camera_z);
 	})
 	.catch(error => console.error('Error loading config.ini:', error));
 }
