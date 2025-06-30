@@ -29,4 +29,16 @@ document.addEventListener('keydown', function(event) {
         boxVisible =!boxVisible;
 		document.getElementById('boxVisible').checked = boxVisible;
     }
-  });
+	else if (event.key === 'e' || event.key === 'E') {
+		if(eyedropperMode==false){	
+			eyedropperMode = true;		
+			changeCursor();			
+		}
+    }
+});
+document.addEventListener('keyup', function(event) {
+	if(eyedropperMode == true){		
+		eyedropperMode = false;	
+		changeCursor();			
+	}
+});

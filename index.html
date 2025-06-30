@@ -2,11 +2,12 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.5.0</title>
+	<title>image3dW v0.6.0</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
 	<script src="js/keyboard.js"></script>
+	<script src="js/mouse.js"></script>
 </head>
 <body>
 	<div id="controlPanel">
@@ -67,18 +68,18 @@
 		w<sub style="color:blue;">z</sub>
 		<input id="w_z" type="number" style="width:40px" oninput="w_z = this.value" step="1" onwheel=" w_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		⌒<sup>near</sup>
-		<input id="hNear" type="number" style="width:40px" oninput="hNear = this.value" step=".1" onwheel=" hNear = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		<input id="hNear" type="number" style="width:40px" oninput="hNear = this.value" step=".05" onwheel=" hNear = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		⌒<sup>far</sup>
-		<input id="hFar" type="number" style="width:40px" oninput="hFar = this.value" step=".1" onwheel=" hFar = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		<input id="hFar" type="number" style="width:40px" oninput="hFar = this.value" step=".05" onwheel=" hFar = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		⌒<sup>𝑓</sup>
 		<input id="steepness" type="number" style="width:40px" oninput="steepness = this.value" step="1" onwheel=" steepness = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 						
 		d<sub style="color:grey;">depth</sub>
 		<input id="brightnessDepth" type="number" style="width:40px" oninput="brightnessDepth = this.value" step=".1" onwheel=" brightnessDepth = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		∠<sub style="color:red;">x</sub><sub>depth</sub>
-		<input id="theta_depth_x" type="number" style="width:40px" oninput="theta_depth_x = this.value" step="1" onwheel=" theta_depth_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		<input id="theta_depth_x" type="number" style="width:40px" oninput="theta_depth_x = this.value" step="5" onwheel=" theta_depth_x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		∠<sub style="color:green;">y</sub><sub>depth</sub>
-		<input id="theta_depth_y" type="number" style="width:40px" oninput="theta_depth_y = this.value" step="1" onwheel=" theta_depth_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		<input id="theta_depth_y" type="number" style="width:40px" oninput="theta_depth_y = this.value" step="5" onwheel=" theta_depth_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		▭<sub style="color:red;">x</sub><sub>1</sub>
 		<input id="bx1" type="number" style="width:40px" oninput="bx1 = this.value" step=".1" onwheel=" bx1 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		▭<sub style="color:green;">y</sub><sub>1</sub>
@@ -94,8 +95,10 @@
 		▭<sub>visible</sub><input id="boxVisible" type="checkbox" oninput="boxVisible =!boxVisible"/>	
 		✂
 		<input id="clippingPlane" type="number" style="width:40px" oninput="clippingPlane = this.value" step=".05" onwheel=" clippingPlane = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		k
+		<input id="k_value" type="number" style="width:40px" oninput="k_value = this.value" step=".1" onwheel=" k_value = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		<br>
-		γ
+		☼
 		<input id="brightness" type="number" style="width:40px" oninput="brightness = this.value" step=".05" onwheel=" brightness = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		contrast
 		<input id="contrast" type="number" style="width:40px" oninput="contrast = this.value" step=".1" onwheel=" contrast = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
@@ -103,6 +106,15 @@
 		<input id="saturation" type="number" style="width:40px" oninput="saturation = this.value" step=".1" onwheel=" saturation = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		background
 		<input id="bg-color" type="text" style="width:80px" oninput="renderer.setClearColor(new THREE.Color(this.value), 1); // hex + alpha" placeholder="#000000"/>
+		<button type="button" onClick="eyedropperMode=!eyedropperMode; changeCursor();" >eyedropper</button>
+		width
+		<input id="width-mesh" type="number" style="width:40px" oninput="rotationGroup.scale.x = this.value" step=".1" onwheel=" rotationGroup.scale.x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		height
+		<input id="height-mesh" type="number" style="width:40px" oninput="rotationGroup.scale.y = this.value" step=".1" onwheel=" rotationGroup.scale.y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		▱<sub style="color:red;">x</sub>
+		<input id="sheerX" type="number" style="width:40px" oninput="sheerX = this.value" step=".1" onwheel=" sheerX = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		▱<sub style="color:green;">y</sub>
+		<input id="sheerY" type="number" style="width:40px" oninput="sheerY = this.value" step=".1" onwheel=" sheerY = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		
 		presets: 
 		<select id="presetDropdown" onchange="reset(this.value)">
@@ -145,6 +157,10 @@ uniform float by2;
 uniform float steepnessB;
 uniform float baseFloor;
 
+uniform float sheerX;
+uniform float sheerY;
+uniform float k_value;
+
 uniform float sBrightnessDepth;
 uniform float sBrightness;
 uniform float sTheta_depth_x;
@@ -161,13 +177,30 @@ float gauss(float x, float close, float far, float multiplier){
 								((close-far)/multiplier),2.0)
 								);
 }
+// Returns a sine wave with controllable steepness.
+// Set remapTo01 = true to get [0,1] range; false for [-1,1]
+float steepSine(float x, float steepness) {
+    float s = sin(x);
+    
+    // Remap from [-1,1] to [0,1]
+    s = 0.5 * s + 0.5;
 
+    // Apply power curve for steepness control
+    s = pow(s, steepness);
+
+    // Optional remap back to [-1,1]
+    return s * 2.0 - 1.0;
+}
 
 void main() {
 	vUv = uv;
 	vec4 h2 = texture2D(heightMap, uv);
 	h2.r += sTheta_depth_x*position.x/1000.0;
 	h2.r += sTheta_depth_y*position.y/1000.0;
+	
+	//position.x += sheerX*position.y;
+	//position.y += sheerY*position.x;
+	
 	float gaussian = max(gauss(h2.r,sNear,sFar,sSteepness),baseFloor);
 	float gaussianX = max(gauss(position.x,bx1,bx2,steepnessB),baseFloor);
 	float gaussianY = max(gauss(position.y,by1,by2,steepnessB),baseFloor);
@@ -182,10 +215,10 @@ void main() {
 	
 	//vNormal = normalize(normalMatrix * normal);
 	vec3 displacment = vec3(
-								sin(h2.r*sWavelength-sTime*sFrequency+sPhase_x/360.0*2.0*PI)*w_x,
-								sin(h2.r*sWavelength-sTime*sFrequency+sPhase_y/360.0*2.0*PI)*w_y,
-								sin(h2.r*sWavelength-sTime*sFrequency+sPhase_z/360.0*2.0*PI)*w_z);
-	vec3 displacedPosition = position + (normal*  h2.r * sHeight +displacment*gaussian*gaussianX*gaussianY/100.0);
+								steepSine(h2.r*sWavelength-sTime*sFrequency+sPhase_x/360.0*2.0*PI,k_value)*w_x,
+								steepSine(h2.r*sWavelength-sTime*sFrequency+sPhase_y/360.0*2.0*PI,k_value)*w_y,
+								steepSine(h2.r*sWavelength-sTime*sFrequency+sPhase_z/360.0*2.0*PI,k_value)*w_z);
+	vec3 displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacment*gaussian*gaussianX*gaussianY/100.0);
 	
 	vXCoord=position.x;//for fragment shader
 	vYCoord=position.y;//for fragment shader
@@ -203,11 +236,16 @@ uniform float sBrightness;
 uniform float sContrast;
 uniform float sSaturation;
 uniform bool boxVisible;
+uniform float sHeight;
 //box
 uniform float bx1;
 uniform float by1;
 uniform float bx2;
 uniform float by2;
+
+uniform float sNear;
+uniform float sFar;
+uniform float sBrightnessDepth;
 
 uniform float clippingPlane;
 
@@ -215,7 +253,6 @@ precision mediump float;
 varying float vXCoord;
 varying float vYCoord;
 varying float vZCoord;
-
 
 
 void main() {
@@ -240,8 +277,12 @@ void main() {
 			color = vec3(0.0, 1.0, 0.0); // highlight
 		if (abs(vYCoord - by2) < epsilon)
 			color = vec3(0.0, 1.0, 1.0); // highlight
+		if (abs(vZCoord - (sNear+sBrightnessDepth)*(sHeight)) < epsilon)
+			color = vec3(0.0, 0.0, 1.0); // highlight
+		if (abs(vZCoord - (sFar+sBrightnessDepth)*(sHeight)) < epsilon)
+			color = vec3(1.0, 0.0, 1.0); // highlight
 	}
-	if(vZCoord<clippingPlane)
+	if(vZCoord<clippingPlane*sHeight)
 		alpha = 0.0;
 	gl_FragColor = vec4(color, alpha);
 }
@@ -252,6 +293,10 @@ void main() {
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 60, innerWidth / innerHeight, 0.1, 100 );
+const renderTarget = new THREE.WebGLRenderTarget(
+  window.innerWidth * window.devicePixelRatio,
+  window.innerHeight * window.devicePixelRatio
+);
 	
 camera.position.set(0,0,20);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -277,6 +322,9 @@ var rotationGroup = new THREE.Group();
 var rotationPoint = new THREE.Vector3(0, 0, 0);
 rotationGroup.position.copy(rotationPoint);
 var pivot_z = 0;
+
+var sheerX = 0;
+var sheerY = 0;
 
 var material = null;
 var mesh = null;
@@ -323,9 +371,12 @@ function handleImageUpload(event) {
 				bx2: {value: 0.0},
 				by1: {value: 0.0},
 				by2: {value: 0.0},
+				sheerX: {value: 0.0},
+				sheerY: {value: 0.0},
+				k_value: { value: 0.0 },
 				steepnessB: { value: 0.0 },
 				clippingPlane: { value: 0.0 },
-				baseFloor: { value: 0.0 },
+				baseFloor: { value: 0.0 },				
 				boxVisible: { value: false }
 			};
 
@@ -413,6 +464,9 @@ function handleDepthUpload(event) {
         loader.load(
             imageURL,
             function (texture) {
+				texture.minFilter = THREE.LinearFilter;
+				texture.magFilter = THREE.LinearFilter;
+
                 console.log("Texture loaded:", texture);
                 // Use the texture (e.g. apply it to a mesh)
                 material.uniforms.heightMap.value = texture;
@@ -467,21 +521,29 @@ function animate(time) {
 		material.uniforms.boxVisible.value = boxVisible;
 		material.uniforms.clippingPlane.value = clippingPlane;
 		material.uniforms.baseFloor.value = baseFloor;
+		material.uniforms.sheerX.value = sheerX;
+		material.uniforms.sheerY.value = sheerY;
+		material.uniforms.k_value.value = k_value;
 	}
 	requestAnimationFrame(animate);
 	controls.update(); // required for damping or auto-rotate
+	// Render to offscreen render target (for picking)
+	renderer.setRenderTarget(renderTarget);
 	renderer.render(scene, camera);
+
+	// Now render to screen (so user sees it)
+	renderer.setRenderTarget(null);
+	renderer.render(scene, camera); // <- This was missing
 }
-window.addEventListener('resize', handleResize);
 reset("config.ini");
-function handleResize()
-{
+window.addEventListener('resize', () => {
 	const newWidth = window.innerWidth;
 	const newHeight = window.innerHeight;
 	camera.aspect = newWidth / newHeight;
 	camera.updateProjectionMatrix();
 	renderer.setSize(newWidth, newHeight);
-}
+	renderTarget.setSize(newWidth, newHeight);
+});
 function reset(preset)
 {
 	fetch(preset)
@@ -523,6 +585,10 @@ function reset(preset)
 			document.getElementById("clippingPlane").value = clippingPlane =0;
 			document.getElementById("pivot_z").value = rotationPoint.z;
 			document.getElementById("baseFloor").value = baseFloor = 0;
+			
+			document.getElementById("sheerX").value = sheerX = 0;
+			document.getElementById("sheerY").value = sheerY = 0;
+			document.getElementById("k_value").value = k_value = 1;
 			 
 		}
 		document.getElementById("frequencyM").value = frequencyM = parseFloat(config.settings.frequencyM);
