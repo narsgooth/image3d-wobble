@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.4.0</title>
+	<title>image3dW v0.5.0</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -89,6 +89,8 @@
 		<input id="by2" type="number" style="width:40px" oninput="by2 = this.value" step=".1" onwheel=" by2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		▭<sub>𝑓</sub>
 		<input id="steepnessB" type="number" style="width:40px" oninput="steepnessB = this.value" step=".1" onwheel=" steepnessB = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		<sub>baseFloor</sub>
+		<input id="baseFloor" type="number" style="width:40px" oninput="baseFloor = this.value" step=".1" onwheel=" baseFloor = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		▭<sub>visible</sub><input id="boxVisible" type="checkbox" oninput="boxVisible =!boxVisible"/>	
 		✂
 		<input id="clippingPlane" type="number" style="width:40px" oninput="clippingPlane = this.value" step=".05" onwheel=" clippingPlane = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
@@ -141,6 +143,7 @@ uniform float by1;
 uniform float bx2;
 uniform float by2;
 uniform float steepnessB;
+uniform float baseFloor;
 
 uniform float sBrightnessDepth;
 uniform float sBrightness;
@@ -165,9 +168,9 @@ void main() {
 	vec4 h2 = texture2D(heightMap, uv);
 	h2.r += sTheta_depth_x*position.x/1000.0;
 	h2.r += sTheta_depth_y*position.y/1000.0;
-	float gaussian = gauss(h2.r,sNear,sFar,sSteepness);
-	float gaussianX = gauss(position.x,bx1,bx2,steepnessB);
-	float gaussianY = gauss(position.y,by1,by2,steepnessB);
+	float gaussian = max(gauss(h2.r,sNear,sFar,sSteepness),baseFloor);
+	float gaussianX = max(gauss(position.x,bx1,bx2,steepnessB),baseFloor);
+	float gaussianY = max(gauss(position.y,by1,by2,steepnessB),baseFloor);
 	
 	h2.r +=sBrightnessDepth;
 	if(h2.r<0.0)
@@ -322,6 +325,7 @@ function handleImageUpload(event) {
 				by2: {value: 0.0},
 				steepnessB: { value: 0.0 },
 				clippingPlane: { value: 0.0 },
+				baseFloor: { value: 0.0 },
 				boxVisible: { value: false }
 			};
 
@@ -462,6 +466,7 @@ function animate(time) {
 		material.uniforms.steepnessB.value = steepnessB;
 		material.uniforms.boxVisible.value = boxVisible;
 		material.uniforms.clippingPlane.value = clippingPlane;
+		material.uniforms.baseFloor.value = baseFloor;
 	}
 	requestAnimationFrame(animate);
 	controls.update(); // required for damping or auto-rotate
@@ -517,6 +522,7 @@ function reset(preset)
 			boxVisible = false;
 			document.getElementById("clippingPlane").value = clippingPlane =0;
 			document.getElementById("pivot_z").value = rotationPoint.z;
+			document.getElementById("baseFloor").value = baseFloor = 0;
 			 
 		}
 		document.getElementById("frequencyM").value = frequencyM = parseFloat(config.settings.frequencyM);
