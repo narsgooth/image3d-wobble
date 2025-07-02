@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.7.0</title>
+	<title>image3dW v0.7.2</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -251,8 +251,8 @@ void main() {
 		float radius = length(position.xy);
 		float angle = atan(position.y, position.x);
 		displacedPosition = vec3(
-								cos(angle+sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0*gaussian * gaussianX * gaussianY)* radius,
-								sin(angle+sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0*gaussian * gaussianX * gaussianY)* radius,
+								cos(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*gaussian * gaussianX * gaussianY)* radius,
+								sin(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*gaussian * gaussianX * gaussianY)* radius,
 								position.z
 								)+normal*  h2.r * sHeight;
 								
