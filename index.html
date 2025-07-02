@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.6.0</title>
+	<title>image3dW v0.7.0</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -226,24 +226,24 @@ void main() {
 	vec3 displacedPosition;
 	if(sWaveMode == 0){//longitudal
 		displacement = vec3(
-								steepSine(h2.r*sWavelength-sTime*sFrequency+sPhase_x/360.0*2.0*PI,k_value)*w_x,
-								steepSine(h2.r*sWavelength-sTime*sFrequency+sPhase_y/360.0*2.0*PI,k_value)*w_y,
-								steepSine(h2.r*sWavelength-sTime*sFrequency+sPhase_z/360.0*2.0*PI,k_value)*w_z);
+								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_x),k_value)*w_x,
+								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_y),k_value)*w_y,
+								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_z),k_value)*w_z);
 								
 		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0);
 	}
 	else if(sWaveMode == 1){//compression
 		displacement = vec3(
-								steepSine(sTime*sFrequency,k_value)*sin(position.x*sWavelength/10.0)*w_x,
-								steepSine(sTime*sFrequency,k_value)*sin(position.y*sWavelength/10.0)*w_y,
-								steepSine(sTime*sFrequency,k_value)*sin(h2.r*sWavelength/10.0)*w_z);
+								steepSine(sTime*sFrequency+radians(sPhase_x),k_value)*sin(position.x*sWavelength/10.0)*w_x,
+								steepSine(sTime*sFrequency+radians(sPhase_y),k_value)*sin(position.y*sWavelength/10.0)*w_y,
+								steepSine(sTime*sFrequency+radians(sPhase_z),k_value)*sin(h2.r*sWavelength/10.0)*w_z);
 		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0);
 	}
 	else if(sWaveMode == 2){//turning
 		displacement = vec3(
-								sin(sin(sTime*sFrequency)*w_x/360.0*h2.r*sWavelength/10.0)*h2.r* sHeight,
-								sin(sin(sTime*sFrequency)*w_y/360.0*h2.r*sWavelength/10.0)*h2.r* sHeight,
-								cos(sin(sTime*sFrequency)*w_z/360.0*h2.r*sWavelength/10.0)*h2.r *sHeight/10.0
+								sin(sin(sTime*sFrequency+radians(sPhase_x))*w_x/360.0*h2.r*sWavelength/10.0)*h2.r* sHeight,
+								sin(sin(sTime*sFrequency+radians(sPhase_y))*w_y/360.0*h2.r*sWavelength/10.0)*h2.r* sHeight,
+								cos(sin(sTime*sFrequency+radians(sPhase_z))*w_z/360.0*h2.r*sWavelength/10.0)*h2.r *sHeight/10.0
 								);
 		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,0.0) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY);
 	}
@@ -251,8 +251,8 @@ void main() {
 		float radius = length(position.xy);
 		float angle = atan(position.y, position.x);
 		displacedPosition = vec3(
-								cos(angle+sin(sTime*sFrequency)*h2.r*w_z/100.0*gaussian * gaussianX * gaussianY)* radius,
-								sin(angle+sin(sTime*sFrequency)*h2.r*w_z/100.0*gaussian * gaussianX * gaussianY)* radius,
+								cos(angle+sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0*gaussian * gaussianX * gaussianY)* radius,
+								sin(angle+sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0*gaussian * gaussianX * gaussianY)* radius,
 								position.z
 								)+normal*  h2.r * sHeight;
 								
