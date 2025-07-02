@@ -126,6 +126,13 @@
 			<option value="presets/oscillate.ini">Oscillate</option>
 			<option value="presets/sway.ini">Sway</option>
 		</select>
+		mode: 
+		<select id="presetDropdown" onchange="waveMode= this.value">
+			<option value=0>Longitudinal</option>
+			<option value=1>Compression</option>
+			<option value=2>Turning</option>
+			<option value=3>Twisting</option>
+		</select>
 		<button type="button" onClick="randomize()" >random</button>
 		<button type="button" onClick="reset('config.ini')">↻</button>
 		subdivisions
@@ -166,6 +173,9 @@ uniform float sBrightness;
 uniform float sTheta_depth_x;
 uniform float sTheta_depth_y;
 
+
+uniform int sWaveMode;
+
 const float PI = 3.14159265359;
 
 varying float vXCoord;//for fragment shader
@@ -191,7 +201,6 @@ float steepSine(float x, float steepness) {
     // Optional remap back to [-1,1]
     return s * 2.0 - 1.0;
 }
-
 void main() {
 	vUv = uv;
 	vec4 h2 = texture2D(heightMap, uv);
@@ -212,13 +221,43 @@ void main() {
 	if(h2.r>1.0)
 		h2.r = 1.0;
 	
-	
 	//vNormal = normalize(normalMatrix * normal);
-	vec3 displacment = vec3(
+	vec3 displacement;
+	vec3 displacedPosition;
+	if(sWaveMode == 0){//longitudal
+		displacement = vec3(
 								steepSine(h2.r*sWavelength-sTime*sFrequency+sPhase_x/360.0*2.0*PI,k_value)*w_x,
 								steepSine(h2.r*sWavelength-sTime*sFrequency+sPhase_y/360.0*2.0*PI,k_value)*w_y,
 								steepSine(h2.r*sWavelength-sTime*sFrequency+sPhase_z/360.0*2.0*PI,k_value)*w_z);
-	vec3 displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacment*gaussian*gaussianX*gaussianY/100.0);
+								
+		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0);
+	}
+	else if(sWaveMode == 1){//compression
+		displacement = vec3(
+								steepSine(sTime*sFrequency,k_value)*sin(position.x*sWavelength/10.0)*w_x,
+								steepSine(sTime*sFrequency,k_value)*sin(position.y*sWavelength/10.0)*w_y,
+								steepSine(sTime*sFrequency,k_value)*sin(h2.r*sWavelength/10.0)*w_z);
+		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0);
+	}
+	else if(sWaveMode == 2){//turning
+		displacement = vec3(
+								sin(sin(sTime*sFrequency)*w_x/360.0*h2.r*sWavelength/10.0)*h2.r* sHeight,
+								sin(sin(sTime*sFrequency)*w_y/360.0*h2.r*sWavelength/10.0)*h2.r* sHeight,
+								cos(sin(sTime*sFrequency)*w_z/360.0*h2.r*sWavelength/10.0)*h2.r *sHeight/10.0
+								);
+		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,0.0) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY);
+	}
+	else if(sWaveMode == 3){//twisting
+		float radius = length(position.xy);
+		float angle = atan(position.y, position.x);
+		displacedPosition = vec3(
+								cos(angle+sin(sTime*sFrequency)*h2.r*w_z/100.0*gaussian * gaussianX * gaussianY)* radius,
+								sin(angle+sin(sTime*sFrequency)*h2.r*w_z/100.0*gaussian * gaussianX * gaussianY)* radius,
+								position.z
+								)+normal*  h2.r * sHeight;
+								
+	}
+	
 	
 	vXCoord=position.x;//for fragment shader
 	vYCoord=position.y;//for fragment shader
@@ -316,6 +355,7 @@ gridHelper.visible = false;
 
 //gaussian box
 var boxVisible = false;
+var waveMode = 0;
 
 //Mesh Rotation
 var rotationGroup = new THREE.Group();
@@ -377,7 +417,8 @@ function handleImageUpload(event) {
 				steepnessB: { value: 0.0 },
 				clippingPlane: { value: 0.0 },
 				baseFloor: { value: 0.0 },				
-				boxVisible: { value: false }
+				boxVisible: { value: false },
+				sWaveMode: {value: 0}
 			};
 
 			material = new THREE.ShaderMaterial({
@@ -480,18 +521,29 @@ function handleDepthUpload(event) {
 }
 let scaleW = 1;
 document.getElementById('scaleW').value = 1;
+function steepSine(x, steepness) {
+    let s = Math.sin(x);
+    
+    // Remap from [-1,1] to [0,1]
+    s = 0.5 * s + 0.5;
 
+    // Apply power curve for steepness control
+    s = Math.pow(s, steepness);
+
+    // Optional remap back to [-1,1]
+    return s * 2.0 - 1.0;
+}
 let clock = new THREE.Clock();
 function animate(time) {
 	if(mesh!=null){
 		//position oscilation
-		mesh.position.x = Math.sin(frequencyM*time/1000.0 +phase_x/360*2*Math.PI)*amplitude_x; 
-		mesh.position.y = Math.sin(frequencyM*time/1000.0+phase_y/360*2*Math.PI)*amplitude_y; 
-		mesh.position.z = pivot_z + Math.sin(frequencyM*time/1000.0 +phase_z/360*2*Math.PI)*amplitude_z; 		
+		mesh.position.x = steepSine(frequencyM*time/1000.0 +phase_x/360*2*Math.PI,k_value)*amplitude_x; 
+		mesh.position.y = steepSine(frequencyM*time/1000.0+phase_y/360*2*Math.PI,k_value)*amplitude_y; 
+		mesh.position.z = pivot_z + steepSine(frequencyM*time/1000.0 +phase_z/360*2*Math.PI,k_value)*amplitude_z; 		
 		//rotation oscilation
-		rotationGroup.rotation.x = theta_x/360.0*Math.PI *Math.sin(frequencyR*time/1000.0 +phase_x/360*2*Math.PI);
-		rotationGroup.rotation.y = theta_y/360.0*Math.PI *Math.sin(frequencyR*time/1000.0 +phase_y/360*2*Math.PI);
-		rotationGroup.rotation.z = theta_z/360.0*Math.PI *Math.sin(frequencyR*time/1000.0 +phase_z/360*2*Math.PI);
+		rotationGroup.rotation.x = theta_x/360.0*Math.PI *steepSine(frequencyR*time/1000.0 +phase_x/360*2*Math.PI,k_value);
+		rotationGroup.rotation.y = theta_y/360.0*Math.PI *steepSine(frequencyR*time/1000.0 +phase_y/360*2*Math.PI,k_value);
+		rotationGroup.rotation.z = theta_z/360.0*Math.PI *steepSine(frequencyR*time/1000.0 +phase_z/360*2*Math.PI,k_value);
 		rotationGroup.position.z = distance_z;
 		//shader variables
 		material.uniforms.sTime.value = time / 1000;		
@@ -524,6 +576,7 @@ function animate(time) {
 		material.uniforms.sheerX.value = sheerX;
 		material.uniforms.sheerY.value = sheerY;
 		material.uniforms.k_value.value = k_value;
+		material.uniforms.sWaveMode.value = waveMode;
 	}
 	requestAnimationFrame(animate);
 	controls.update(); // required for damping or auto-rotate
@@ -617,6 +670,7 @@ function reset(preset)
 	})
 	.catch(error => console.error('Error loading config.ini:', error));
 }
+
 function getRandom(value)
 {
 	return Math.random()*value*2-value;
