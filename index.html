@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.7.5</title>
+	<title>image3dW v0.7.6</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -150,7 +150,14 @@
 		<button type="button" onClick="reset('config.ini')">↻</button>
 		subdivisions
 		<input id="subdivisions" type="number" style="width:40px" oninput="subdivisions = this.value;setSubdivisions(this.value)" step="10" onwheel=" subdivisions = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		point cloud
+		<input id="pointMode" type="checkbox" oninput="pointMode =!pointMode"/>	
+		point size
+		<input id="pointSize" type="number" style="width:40px" oninput="pointSize = this.value" step="1" onwheel=" pointSize = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		■/●
+		<input id="circleMode" type="checkbox" oninput="circleMode =!circleMode"/>	
 		
+				
 	</div>
 <!-- VERTEX SHADER -->
 <script id="depthVertexShader" type="x-shader/x-vertex">
@@ -190,6 +197,7 @@ uniform float sTheta_depth_x;
 uniform float sTheta_depth_y;
 
 
+uniform float pointSize;
 uniform int sWaveMode;
 
 const float PI = 3.14159265359;
@@ -218,6 +226,14 @@ float steepSine(float x, float steepness) {
     return s * 2.0 - 1.0;
 }
 void main() {
+	//gl_PointSize = pointSize; // or dynamic size
+	// Convert position to camera/view space
+	vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+	// Perspective scaling: shrink with depth
+	float distance = -mvPosition.z;
+	gl_PointSize = pointSize / distance;
+
 	vUv = uv;
 	vec4 h2 = texture2D(heightMap, uv);
 	h2.r += sTheta_depth_x*position.x/1000.0;
@@ -310,7 +326,14 @@ varying float vYCoord;
 varying float vZCoord;
 
 
+uniform bool circleMode;
+
 void main() {
+	if(circleMode){
+		float d = length(gl_PointCoord - vec2(0.5));
+		if (d > 0.5) discard;
+	}
+	
 	vec3 color = texture2D(diffuseMap, vUv).rgb;
 	float alpha = 1.0;
 	// Adjust brightness
@@ -373,6 +396,9 @@ gridHelper.visible = false;
 var boxVisible = false;
 var waveMode = 0;
 var w2on = false;
+var pointMode = false;
+var pointSize = 1;
+var circleMode = false;
 
 //Mesh Rotation
 var rotationGroup = new THREE.Group();
@@ -438,7 +464,10 @@ function handleImageUpload(event) {
 				clippingPlane: { value: 0.0 },
 				baseFloor: { value: 0.0 },				
 				boxVisible: { value: false },
-				sWaveMode: {value: 0}
+				sWaveMode: {value: 0},
+				pointMode: {value: false},
+				pointSize: {value: 0},
+				circleMode: {value: 0}
 			};
 
 			material = new THREE.ShaderMaterial({
@@ -455,7 +484,11 @@ function handleImageUpload(event) {
 				texture.image.height/3
 			);
 			removeMeshFromScene(mesh);
-			mesh = new THREE.Mesh(geometry, material);
+			if(!pointMode)
+				mesh = new THREE.Mesh(geometry, material);
+			else
+				mesh = new THREE.Points(geometry, material);
+			
 			//scene.add(mesh);
 			rotationGroup.add(mesh);
 			scene.add(rotationGroup);
@@ -609,6 +642,8 @@ function animate(time) {
 		material.uniforms.sheerY.value = sheerY;
 		material.uniforms.k_value.value = k_value;
 		material.uniforms.sWaveMode.value = waveMode;
+		material.uniforms.pointSize.value = pointSize;
+		material.uniforms.circleMode.value = circleMode;
 	}
 	requestAnimationFrame(animate);
 	controls.update(); // required for damping or auto-rotate
