@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.7.4</title>
+	<title>image3dW v0.7.5</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -67,12 +67,8 @@
 		<input id="w_y" type="number" style="width:40px" oninput="w_y = this.value" step="1" onwheel=" w_y = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		w<sub style="color:blue;">z</sub>
 		<input id="w_z" type="number" style="width:40px" oninput="w_z = this.value" step="1" onwheel=" w_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		w<sub style="color:red;">x2</sub>
-		<input id="w_x2" type="number" style="width:40px" oninput="w_x2 = this.value" step="1" onwheel=" w_x2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		w<sub style="color:limeGreen;">y2</sub>
-		<input id="w_y2" type="number" style="width:40px" oninput="w_y2 = this.value" step="1" onwheel=" w_y2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		w<sub style="color:blue;">z2</sub>
-		<input id="w_z2" type="number" style="width:40px" oninput="w_z2 = this.value" step="1" onwheel=" w_z2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		
+		
 		⌒<sup>near</sup>
 		<input id="hNear" type="number" style="width:40px" oninput="hNear = this.value" step=".05" onwheel=" hNear = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		⌒<sup>far</sup>
@@ -113,6 +109,17 @@
 		background
 		<input id="bg-color" type="text" style="width:80px" oninput="renderer.setClearColor(new THREE.Color(this.value), 1); // hex + alpha" placeholder="#000000"/>
 		<button type="button" onClick="eyedropperMode=!eyedropperMode; changeCursor();" >eyedropper</button>
+		w<sub>2</sub>
+		<input id="w2on" type="checkbox" oninput="w2on = !w2on"/>	
+		w<sub>scale2</sub>
+		<input id="scaleW2" type="number" style="width:40px" oninput="scaleW2 = this.value" step=".1" onwheel=" scaleW2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		w<sub style="color:red;">x2</sub>
+		<input id="w_x2" type="number" style="width:40px" oninput="w_x2 = this.value" step="1" onwheel=" w_x2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		w<sub style="color:limeGreen;">y2</sub>
+		<input id="w_y2" type="number" style="width:40px" oninput="w_y2 = this.value" step="1" onwheel=" w_y2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		w<sub style="color:blue;">z2</sub>
+		<input id="w_z2" type="number" style="width:40px" oninput="w_z2 = this.value" step="1" onwheel=" w_z2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		
 		width
 		<input id="width-mesh" type="number" style="width:40px" oninput="rotationGroup.scale.x = this.value" step=".1" onwheel=" rotationGroup.scale.x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		height
@@ -239,7 +246,7 @@ void main() {
 								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_y),k_value)*w_y,
 								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_z),k_value)*w_z)+ vec3(w_x2,w_y2,w_z2)*sin(position.x+position.y+h2.r+sTime*sFrequency)/10.0;
 								
-		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0);
+		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0)+ vec3(w_x2,w_y2,w_z2)*sin(position.x+position.y+h2.r+sTime*sFrequency)/100.0;
 	}
 	else if(sWaveMode == 1){//compression
 		displacement = vec3(
@@ -365,6 +372,7 @@ gridHelper.visible = false;
 //gaussian box
 var boxVisible = false;
 var waveMode = 0;
+var w2on = false;
 
 //Mesh Rotation
 var rotationGroup = new THREE.Group();
@@ -532,7 +540,9 @@ function handleDepthUpload(event) {
     }
 }
 let scaleW = 1;
+let scaleW2 = 1;
 document.getElementById('scaleW').value = 1;
+document.getElementById('scaleW2').value = 1;
 function steepSine(x, steepness) {
     let s = Math.sin(x);
     
@@ -564,9 +574,16 @@ function animate(time) {
 		material.uniforms.w_x.value = w_x*scaleW;
 		material.uniforms.w_y.value = w_y*scaleW;
 		material.uniforms.w_z.value = w_z*scaleW;
-		material.uniforms.w_x2.value = w_x2*scaleW;
-		material.uniforms.w_y2.value = w_y2*scaleW;
-		material.uniforms.w_z2.value = w_z2*scaleW;
+		if(w2on){
+			material.uniforms.w_x2.value = w_x2*scaleW2;
+			material.uniforms.w_y2.value = w_y2*scaleW2;
+			material.uniforms.w_z2.value = w_z2*scaleW2;
+		}
+		else{
+			material.uniforms.w_x2.value = 0;
+			material.uniforms.w_y2.value = 0;
+			material.uniforms.w_z2.value = 0;
+		}
 		material.uniforms.sPhase_x.value = phase_x;
 		material.uniforms.sPhase_y.value = phase_y;
 		material.uniforms.sPhase_z.value = phase_z;
@@ -622,6 +639,7 @@ function reset(preset)
 		if(preset == 'config.ini')
 		{
 			scaleW= 1;
+			scaleW2= 1;
 			document.getElementById("brightnessDepth").value = brightnessDepth = parseFloat(config.settings.brightnessDepth);
 			document.getElementById("height2").value = height2 = parseFloat(config.settings.height2);
 
@@ -696,6 +714,7 @@ function getRandom(value)
 function randomize()
 {
 	let max = 40;
+	scaleW2 = getRandom(1);
 	document.getElementById("frequencyW").value = frequencyW = getRandom(max/2);
 	document.getElementById("wavelength").value = wavelength = getRandom(max);
 	document.getElementById("w_x").value = w_x = getRandom(max);
