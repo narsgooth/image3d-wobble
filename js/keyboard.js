@@ -35,6 +35,11 @@ document.addEventListener('keydown', function(event) {
 			changeCursor();			
 		}
     }
+	else if (event.key === ' ') {
+		dropdown = document.getElementById("modeDropdown")
+		waveMode= (waveMode + 1 )% dropdown.options.length;
+		dropdown.selectedIndex = waveMode;
+    }
 });
 document.addEventListener('keyup', function(event) {
 	if(eyedropperMode == true){		

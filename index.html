@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.8.0</title>
+	<title>image3dW v0.9.0</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -142,7 +142,7 @@
 			<option value="presets/sway.ini">Sway</option>
 		</select>
 		mode: 
-		<select id="presetDropdown" onchange="waveMode= this.value">
+		<select id="modeDropdown" onchange="waveMode= this.value">
 			<option value=0>Longitudinal</option>
 			<option value=1>Compression</option>
 			<option value=2>Turning</option>
@@ -265,14 +265,10 @@ void main() {
 								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_y),k_value)*w_y,
 								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_z),k_value)*w_z)+ vec3(w_x2,w_y2,w_z2)*sin(position.x+position.y+h2.r+sTime*sFrequency)/10.0;
 								
-		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0)+ w2displacement /100.0;
+		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0);
 	}
 	else if(sWaveMode == 1){//compression
-		displacement = vec3(
-								steepSine(sTime*sFrequency+radians(sPhase_x),k_value)*sin(position.x*sWavelength/10.0)*w_x,
-								steepSine(sTime*sFrequency+radians(sPhase_y),k_value)*sin(position.y*sWavelength/10.0)*w_y,
-								steepSine(sTime*sFrequency+radians(sPhase_z),k_value)*sin(h2.r*sWavelength/10.0)*w_z);
-		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0)+ w2displacement /100.0;
+		displacedPosition = w_z*sin(sTime*sFrequency+sWavelength*h2.r+sPhase_z)*vec3(position.x,position.y,h2.r*sHeight)/1000.0*gaussian*gaussianX*gaussianY+vec3(position.x,position.y,h2.r*sHeight);
 	}
 	else if(sWaveMode == 2){//turning
 		float theta = 	sin(sTime*sFrequency+sWavelength*h2.r+sPhase_x)*radians(w_x)*gaussian*gaussianX*gaussianY;
@@ -285,7 +281,7 @@ void main() {
 								sin(phi)*rad +	sin(phi+PI/2.0)*	position.y,
 								cos(theta)*rad/2.0+	cos(theta+PI/2.0)*	position.x +cos(phi)*rad/2.0+	cos(phi+PI/2.0)*	position.y
 								);
-		displacedPosition = displacement + w2displacement /100.0;
+		displacedPosition = displacement;
 	}
 	else if(sWaveMode == 3){//twisting
 		float radius = length(position.xy);
@@ -294,9 +290,9 @@ void main() {
 								cos(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*gaussian * gaussianX * gaussianY)* radius,
 								sin(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*gaussian * gaussianX * gaussianY)* radius,
 								position.z
-								)+normal*  h2.r * sHeight+ w2displacement /1000.0;
-								
+								)+normal*  h2.r * sHeight;
 	}
+	displacedPosition += w2displacement /100.0;
 	
 	
 	vXCoord=position.x;//for fragment shader
@@ -385,6 +381,7 @@ const renderTarget = new THREE.WebGLRenderTarget(
 );
 	
 camera.position.set(0,0,20);
+camera.lookAt(0, 0, 0);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -613,9 +610,9 @@ function animate(time) {
 		material.uniforms.sTime.value = time / 1000;		
 		material.uniforms.sHeight.value = height2;
 		material.uniforms.sWavelength.value = wavelength;
-		material.uniforms.w_x.value = w_x*scaleW;
-		material.uniforms.w_y.value = w_y*scaleW;
-		material.uniforms.w_z.value = w_z*scaleW;
+		material.uniforms.w_x.value = w_x*scaleW/(waveMode==2?10:1);
+		material.uniforms.w_y.value = w_y*scaleW/(waveMode==2?10:1);
+		material.uniforms.w_z.value = w_z*scaleW/(waveMode==2?10:1);
 		if(w2on){
 			material.uniforms.w_x2.value = w_x2*scaleW2;
 			material.uniforms.w_y2.value = w_y2*scaleW2;
@@ -728,8 +725,8 @@ function reset(preset)
 			
 			pointSize = 1;
 			document.getElementById("pointSize").value = 1;
-			
-			 
+			camera.position.set(0,0,20);
+			camera.lookAt(0, 0, 0);
 		}
 		document.getElementById("frequencyM").value = frequencyM = parseFloat(config.settings.frequencyM);
 		document.getElementById("wavelength").value = wavelength = parseFloat(config.settings.wavelength);
