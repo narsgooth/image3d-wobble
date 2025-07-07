@@ -57,28 +57,53 @@ document.addEventListener('keydown', function(event) {
 		document.getElementById('by2').value = by2;
     }
 	else if (event.key === 'ArrowRight') {
-        bx1 = parseFloat(bx1) + .1;
-		bx2 = parseFloat(bx2) + .1;
-		document.getElementById('bx1').value = bx1;
-		document.getElementById('bx2').value = bx2;
+		if(event.ctrlKey){
+			centerX += .1;
+			document.getElementById('centerX').value = centerX;
+		}
+		else
+		{
+			bx1 = parseFloat(bx1) + .1;
+			bx2 = parseFloat(bx2) + .1;
+			document.getElementById('bx1').value = bx1;
+			document.getElementById('bx2').value = bx2;
+		}
     }
 	else if (event.key === 'ArrowLeft') {
-        bx1 = parseFloat(bx1) - .1;
-		bx2 = parseFloat(bx2) - .1;
-		document.getElementById('bx1').value = bx1;
-		document.getElementById('bx2').value = bx2;
+		if(event.ctrlKey){
+			centerX -= .1;
+			document.getElementById('centerX').value = centerX;
+		}
+		else{
+			bx1 = parseFloat(bx1) - .1;
+			bx2 = parseFloat(bx2) - .1;
+			document.getElementById('bx1').value = bx1;
+			document.getElementById('bx2').value = bx2;
+		}
     }
 	else if (event.key === 'ArrowUp') {
-        by1 = parseFloat(by1) + .1;
-		by2 = parseFloat(by2) + .1;
-		document.getElementById('by1').value = by1;
-		document.getElementById('by2').value = by2;
+		if(event.ctrlKey){
+			centerY += .1;
+			document.getElementById('centerY').value = centerY;
+		}
+		else{
+			by1 = parseFloat(by1) + .1;
+			by2 = parseFloat(by2) + .1;
+			document.getElementById('by1').value = by1;
+			document.getElementById('by2').value = by2;
+		}
     }
 	else if (event.key === 'ArrowDown') {
-        by1 = parseFloat(by1) - .1;
-		by2 = parseFloat(by2) - .1;
-		document.getElementById('by1').value = by1;
-		document.getElementById('by2').value = by2;
+		if(event.ctrlKey){
+			centerY -= .1;
+			document.getElementById('centerY').value = centerY;
+		}
+		else{
+			by1 = parseFloat(by1) - .1;
+			by2 = parseFloat(by2) - .1;
+			document.getElementById('by1').value = by1;
+			document.getElementById('by2').value = by2;
+		}
     }
 	else if (event.key === '=') {
         steepnessB = parseFloat(steepnessB) + .1;
@@ -98,7 +123,7 @@ document.addEventListener('keydown', function(event) {
     }
 	//Height
 	else if (event.key === 'z' || event.key === 'Z') {  
-		if(keysPressed['Shift']){
+		if(event.shiftKey){
 			brightnessDepth = parseFloat(brightnessDepth) - .1;
 			document.getElementById('brightnessDepth').value = brightnessDepth;
 		}		
@@ -108,7 +133,7 @@ document.addEventListener('keydown', function(event) {
 		}
     }
 	else if (event.key === 'x' || event.key === 'X') {   
-		if(keysPressed['Shift']){
+		if(event.shiftKey){
 			brightnessDepth = parseFloat(brightnessDepth) + .1;
 			document.getElementById('brightnessDepth').value = brightnessDepth;
 		}		

@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.9.1</title>
+	<title>image3dW v0.9.2</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -121,7 +121,10 @@
 		<input id="w_y2" type="number" style="width:40px" oninput="w_y2 = this.value" step="1" onwheel=" w_y2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		w<sub style="color:blue;">z2</sub>
 		<input id="w_z2" type="number" style="width:40px" oninput="w_z2 = this.value" step="1" onwheel=" w_z2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		
+		c<sub style="color:red;">x</sub>
+		<input id="centerX" type="number" style="width:40px" oninput="centerX = this.value" step=".1" onwheel=" centerX = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		c<sub style="color:limeGreen;">y</sub>
+		<input id="centerY" type="number" style="width:40px" oninput="centerY = this.value" step=".1" onwheel=" centerY = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		width
 		<input id="width-mesh" type="number" style="width:40px" oninput="rotationGroup.scale.x = this.value" step=".1" onwheel=" rotationGroup.scale.x = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		height
@@ -191,6 +194,8 @@ uniform float baseFloor;
 
 uniform float sheerX;
 uniform float sheerY;
+uniform float centerX;
+uniform float centerY;
 uniform float k_value;
 
 uniform float sBrightnessDepth;
@@ -207,6 +212,10 @@ const float PI = 3.14159265359;
 varying float vXCoord;//for fragment shader
 varying float vYCoord;//for fragment shader
 varying float vZCoord;//for fragment shader
+
+
+varying float cXCoord;//for fragment shader
+varying float cYCoord;//for fragment shader
 
 float gauss(float x, float close, float far, float multiplier){
 	return exp(-pow( (x-((far+close)/2.0))/
@@ -268,36 +277,40 @@ void main() {
 		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0);
 	}
 	else if(sWaveMode == 1){//compression
-		displacedPosition = w_z*sin(sTime*sFrequency+sWavelength*h2.r+sPhase_z)*vec3(position.x,position.y,h2.r*sHeight)/1000.0*gaussian*gaussianX*gaussianY+vec3(position.x,position.y,h2.r*sHeight);
+		displacedPosition = w_z*sin(sTime*sFrequency+sWavelength*h2.r+sPhase_z)*vec3(position.x-centerX,position.y-centerY,h2.r*sHeight)/1000.0*gaussian*gaussianX*gaussianY+vec3(position.x,position.y,h2.r*sHeight);
 	}
 	else if(sWaveMode == 2){//turning
-		float theta = 	sin(sTime*sFrequency+sWavelength*h2.r+sPhase_x)*radians(w_x)*gaussian*gaussianX*gaussianY;
-		float phi = 	sin(sTime*sFrequency+sWavelength*h2.r+sPhase_y)*radians(w_y)*gaussian*gaussianX*gaussianY;
+		float theta = 	sin(sTime*sFrequency+sWavelength*h2.r/10.0+sPhase_x)*radians(w_x*h2.r)*gaussian*gaussianX*gaussianY;
+		float phi = 	sin(sTime*sFrequency+sWavelength*h2.r/10.0+sPhase_y)*radians(w_y*h2.r)*gaussian*gaussianX*gaussianY;
 		//float psi = 	sin(sTime*sFrequency+sWavelength/10.0*h2.r+sPhase_z)*radians(w_z);
 		//float radZX = sqrt(pow(position.x,2.0)+pow(h2.r*sHeight,2.0));
 		float rad = sHeight*h2.r;
 		displacement = vec3(
-								sin(theta)*rad +sin(theta+PI/2.0)*	position.x,
-								sin(phi)*rad +	sin(phi+PI/2.0)*	position.y,
-								cos(theta)*rad/2.0+	cos(theta+PI/2.0)*	position.x +cos(phi)*rad/2.0+	cos(phi+PI/2.0)*	position.y
+								sin(theta)*rad +sin(theta+PI/2.0)*	(position.x-centerX),
+								sin(phi)*rad +	sin(phi+PI/2.0)*	(position.y-centerY),
+								cos(theta)*rad/2.0+	cos(theta+PI/2.0)*	(position.x-centerX) +cos(phi)*rad/2.0+	cos(phi+PI/2.0)*	(position.y-centerY)
 								);
-		displacedPosition = displacement;
+		displacedPosition = displacement+vec3(centerX,centerY,0.0);
 	}
 	else if(sWaveMode == 3){//twisting
-		float radius = length(position.xy);
-		float angle = atan(position.y, position.x);
-		displacedPosition = vec3(
+		float radius = length(vec2(position.x-centerX,position.y-centerY));
+		float angle = atan(position.y-centerY, position.x-centerX);
+		displacement = vec3(
 								cos(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*gaussian * gaussianX * gaussianY)* radius,
 								sin(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*gaussian * gaussianX * gaussianY)* radius,
 								position.z
 								)+normal*  h2.r * sHeight;
+		displacedPosition = displacement+vec3(centerX,centerY,0.0);
 	}
-	displacedPosition += w2displacement /100.0;
+	displacedPosition += (w2displacement) /100.0;
 	
 	
 	vXCoord=position.x;//for fragment shader
 	vYCoord=position.y;//for fragment shader
 	vZCoord=displacedPosition.z;//for fragment shader
+	
+	cXCoord=centerX;
+	cYCoord=centerY;
 	
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(displacedPosition, 1.0);
 }
@@ -329,6 +342,8 @@ varying float vXCoord;
 varying float vYCoord;
 varying float vZCoord;
 
+varying float cXCoord;
+varying float cYCoord;
 
 uniform bool circleMode;
 
@@ -363,6 +378,14 @@ void main() {
 			color = vec3(0.0, 0.0, 1.0); // highlight
 		if (abs(vZCoord - (sFar+sBrightnessDepth)*(sHeight)) < epsilon)
 			color = vec3(1.0, 0.0, 1.0); // highlight
+			
+		if (abs(vXCoord-cXCoord)-.1 < epsilon && abs(vYCoord-cYCoord)-.1 < epsilon)
+		{
+			if (abs(vXCoord-cXCoord) < epsilon)
+				color = vec3(1.0, 1.0, 1.0); // center point highlight
+			else if (abs(vYCoord-cYCoord) < epsilon)
+				color = vec3(1.0, 1.0, 1.0); // center point highlight
+		}
 	}
 	if(vZCoord<clippingPlane*sHeight)
 		alpha = 0.0;
@@ -413,6 +436,8 @@ var pivot_z = 0;
 
 var sheerX = 0;
 var sheerY = 0;
+var centerX = 0;
+var centerY = 0;
 
 var material = null;
 var mesh = null;
@@ -472,7 +497,9 @@ function handleImageUpload(event) {
 				sWaveMode: {value: 0},
 				pointMode: {value: false},
 				pointSize: {value: 0},
-				circleMode: {value: 0}
+				circleMode: {value: 0},
+				centerX: {value:0},
+				centerY: {value:0}
 			};
 
 			material = new THREE.ShaderMaterial({
@@ -610,9 +637,9 @@ function animate(time) {
 		material.uniforms.sTime.value = time / 1000;		
 		material.uniforms.sHeight.value = height2;
 		material.uniforms.sWavelength.value = wavelength;
-		material.uniforms.w_x.value = w_x*scaleW/(waveMode==2?10:1);
-		material.uniforms.w_y.value = w_y*scaleW/(waveMode==2?10:1);
-		material.uniforms.w_z.value = w_z*scaleW/(waveMode==2?10:1);
+		material.uniforms.w_x.value = w_x*scaleW;
+		material.uniforms.w_y.value = w_y*scaleW;
+		material.uniforms.w_z.value = w_z*scaleW;
 		if(w2on){
 			material.uniforms.w_x2.value = w_x2*scaleW2;
 			material.uniforms.w_y2.value = w_y2*scaleW2;
@@ -650,6 +677,8 @@ function animate(time) {
 		material.uniforms.sWaveMode.value = waveMode;
 		material.uniforms.pointSize.value = pointSize;
 		material.uniforms.circleMode.value = circleMode;
+		material.uniforms.centerX.value = centerX;
+		material.uniforms.centerY.value = centerY;
 	}
 	requestAnimationFrame(animate);
 	controls.update(); // required for damping or auto-rotate
@@ -681,6 +710,9 @@ function reset(preset)
 		{
 			scaleW= 1;
 			scaleW2= 1;
+			document.getElementById("centerX").value = 0;
+			document.getElementById("centerY").value = 0;
+			
 			document.getElementById("brightnessDepth").value = brightnessDepth = parseFloat(config.settings.brightnessDepth);
 			document.getElementById("height2").value = height2 = parseFloat(config.settings.height2);
 
