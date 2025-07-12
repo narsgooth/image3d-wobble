@@ -2,7 +2,8 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>image3dW v0.9.2</title>
+	<link rel="icon" href="favicon.png" type="image/png">
+	<title>image3dW v0.10.0</title>
 	<style>body { margin:0; overflow:hidden; }</style>
 	<script src="js/three.min.js"></script>
 	<script src="js/OrbitControls.js"></script>
@@ -45,16 +46,20 @@
 		<input id="distance_y" type="number" style="width:30px" oninput="distance_y = parseFloat(this.value)" step="1" onwheel="distance_y = this.value = parseFloat(this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		d<sub>z</sub>
 		<input id="distance_z" type="number" style="width:30px" oninput="distance_z = parseFloat(this.value)" step="1" onwheel="distance_z = this.value = parseFloat(this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		p<sub>y</sub>
+		<input id="pivot_y" type="number" style="width:30px" oninput="pivot_y = parseFloat(this.value)" step="1" onwheel="pivot_y = this.value = parseFloat(this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		p<sub>z</sub>
 		<input id="pivot_z" type="number" style="width:30px" oninput="pivot_z = parseFloat(this.value)" step="1" onwheel="pivot_z = this.value = parseFloat(this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		
 		∠
 		<input id="perspective_angle" type="number" style="width:40px"  oninput=" camera.fov = this.value; camera.updateProjectionMatrix()"  step="5" onwheel="camera.fov = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step; camera.updateProjectionMatrix()"/>
-		
+		<br>
 		img
 		<input type="file" id="imageInput" accept="image/jpeg, image/gif, image/bmp, image/webp" onchange="handleImageUpload(event)">
 		depth</sub>
 		<input type="file" id="depthInput" accept="image/png" onchange="handleDepthUpload(event)"><!--image/*-->
+		mask</sub>
+		<input type="file" id="maskInput" accept="image/png" onchange="handleMaskUpload(event)"><!--image/*-->
 		
 		<br>
 		f<sub>w</sub> (Hz)
@@ -71,9 +76,9 @@
 		<input id="w_z" type="number" style="width:40px" oninput="w_z = this.value" step="1" onwheel=" w_z = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		
 		
-		⌒<sup>near</sup>
+		⌒<sup style="color:blue;">near</sup>
 		<input id="hNear" type="number" style="width:40px" oninput="hNear = this.value" step=".05" onwheel=" hNear = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		⌒<sup>far</sup>
+		⌒<sup style="color:purple;">far</sup>
 		<input id="hFar" type="number" style="width:40px" oninput="hFar = this.value" step=".05" onwheel=" hFar = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		⌒<sup>𝑓</sup>
 		<input id="steepness" type="number" style="width:40px" oninput="steepness = this.value" step="1" onwheel=" steepness = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
@@ -111,16 +116,12 @@
 		bg
 		<input id="bg-color" type="text" style="width:80px" oninput="renderer.setClearColor(new THREE.Color(this.value), 1); // hex + alpha" placeholder="#000000"/>
 		<button type="button" onClick="eyedropperMode=!eyedropperMode; changeCursor();" ><img src="symbols/eyedropper.png" alt="eyedropper"/></button>
-		w<sub>2</sub>
-		<input id="w2on" type="checkbox" oninput="w2on = !w2on"/>	
-		w<sub>scale2</sub>
-		<input id="scaleW2" type="number" style="width:40px" oninput="scaleW2 = this.value" step=".1" onwheel=" scaleW2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		w<sub style="color:red;">x2</sub>
-		<input id="w_x2" type="number" style="width:40px" oninput="w_x2 = this.value" step="1" onwheel=" w_x2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		w<sub style="color:limeGreen;">y2</sub>
-		<input id="w_y2" type="number" style="width:40px" oninput="w_y2 = this.value" step="1" onwheel=" w_y2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
-		w<sub style="color:blue;">z2</sub>
-		<input id="w_z2" type="number" style="width:40px" oninput="w_z2 = this.value" step="1" onwheel=" w_z2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		d<sub style="color:red;">x</sub><sub>mask</sub>
+		<input id="w_x2" type="number" style="width:40px" oninput="w_x2 = this.value" step=".1" onwheel=" w_x2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		d<sub style="color:limeGreen;">y</sub><sub>mask</sub>
+		<input id="w_y2" type="number" style="width:40px" oninput="w_y2 = this.value" step=".1" onwheel=" w_y2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
+		d<sub style="color:blue;">z</sub><sub>mask</sub>
+		<input id="w_z2" type="number" style="width:40px" oninput="w_z2 = this.value" step=".1" onwheel=" w_z2 = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		c<sub style="color:red;">x</sub>
 		<input id="centerX" type="number" style="width:40px" oninput="centerX = this.value" step=".1" onwheel=" centerX = this.value=parseFloat (this.value)-event.deltaY/Math.abs(event.deltaY)*this.step"/>
 		c<sub style="color:limeGreen;">y</sub>
@@ -168,6 +169,7 @@
 <script id="depthVertexShader" type="x-shader/x-vertex">
 varying vec2 vUv;
 uniform sampler2D heightMap;
+uniform sampler2D maskMap;
 uniform float sFrequency;
 uniform float sTime;
 uniform float sHeight;
@@ -203,6 +205,11 @@ uniform float sBrightness;
 uniform float sTheta_depth_x;
 uniform float sTheta_depth_y;
 
+uniform bool maskLoaded;
+
+uniform float clippingPlane;
+
+
 
 uniform float pointSize;
 uniform int sWaveMode;
@@ -216,6 +223,7 @@ varying float vZCoord;//for fragment shader
 
 varying float cXCoord;//for fragment shader
 varying float cYCoord;//for fragment shader
+varying float clipPlane;//for fragment shader
 
 float gauss(float x, float close, float far, float multiplier){
 	return exp(-pow( (x-((far+close)/2.0))/
@@ -237,6 +245,7 @@ float steepSine(float x, float steepness) {
     return s * 2.0 - 1.0;
 }
 void main() {
+	
 	//gl_PointSize = pointSize; // or dynamic size
 	// Convert position to camera/view space
 	vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
@@ -247,15 +256,21 @@ void main() {
 
 	vUv = uv;
 	vec4 h2 = texture2D(heightMap, uv);
+	vec4 mask = texture2D(maskMap, uv);
+	
+	if(!maskLoaded)
+		mask.r=1.0;
+	
 	h2.r += sTheta_depth_x*position.x/1000.0;
 	h2.r += sTheta_depth_y*position.y/1000.0;
 	
 	//position.x += sheerX*position.y;
 	//position.y += sheerY*position.x;
 	
-	float gaussian = max(gauss(h2.r,sNear,sFar,sSteepness),baseFloor);
-	float gaussianX = max(gauss(position.x,bx1,bx2,steepnessB),baseFloor);
-	float gaussianY = max(gauss(position.y,by1,by2,steepnessB),baseFloor);
+	float gaussian = gauss(h2.r,sNear,sFar,sSteepness);
+	float gaussianX = gauss(position.x,bx1,bx2,steepnessB);
+	float gaussianY = gauss(position.y,by1,by2,steepnessB);
+	float wMask = max(gaussian*gaussianX*gaussianY*mask.r,baseFloor);
 	
 	h2.r +=sBrightnessDepth;
 	if(h2.r<0.0)
@@ -267,21 +282,20 @@ void main() {
 	//vNormal = normalize(normalMatrix * normal);
 	vec3 displacement;
 	vec3 displacedPosition;
-	vec3 w2displacement = vec3(w_x2,w_y2,w_z2)*sin(position.x+position.y+h2.r+sTime*sFrequency)*gaussian*gaussianX*gaussianY;
+	vec3 w2displacement = vec3(w_x2,w_y2,w_z2)*sHeight/10.0;
 	if(sWaveMode == 0){//longitudal
 		displacement = vec3(
 								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_x),k_value)*w_x,
 								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_y),k_value)*w_y,
-								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_z),k_value)*w_z)+ vec3(w_x2,w_y2,w_z2)*sin(position.x+position.y+h2.r+sTime*sFrequency)/10.0;
-								
-		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*gaussian*gaussianX*gaussianY/100.0);
+								steepSine(h2.r*sWavelength-sTime*sFrequency+radians(sPhase_z),k_value)*w_z)+ vec3(w_x2,w_y2,w_z2)*sin(position.x+position.y+h2.r+sTime*sFrequency)/10.0;				
+		displacedPosition = vec3(position.x+position.y*sheerX,position.y+position.x*sheerY,position.z) + (normal*  h2.r * sHeight +displacement*wMask/100.0);
 	}
 	else if(sWaveMode == 1){//compression
-		displacedPosition = w_z*sin(sTime*sFrequency+sWavelength*h2.r+sPhase_z)*vec3(position.x-centerX,position.y-centerY,h2.r*sHeight)/1000.0*gaussian*gaussianX*gaussianY+vec3(position.x,position.y,h2.r*sHeight);
+		displacedPosition = w_z*sin(sTime*sFrequency+sWavelength*h2.r+sPhase_z)*vec3(position.x-centerX,position.y-centerY,h2.r*sHeight)/1000.0*wMask+vec3(position.x,position.y,h2.r*sHeight);
 	}
 	else if(sWaveMode == 2){//turning
-		float theta = 	sin(sTime*sFrequency+sWavelength*h2.r/10.0+sPhase_x)*radians(w_x*h2.r)*gaussian*gaussianX*gaussianY;
-		float phi = 	sin(sTime*sFrequency+sWavelength*h2.r/10.0+sPhase_y)*radians(w_y*h2.r)*gaussian*gaussianX*gaussianY;
+		float theta = 	sin(sTime*sFrequency+sWavelength*h2.r+sPhase_x)*radians(w_x*h2.r)*wMask;
+		float phi = 	sin(sTime*sFrequency+sWavelength*h2.r+sPhase_y)*radians(w_y*h2.r)*wMask;
 		//float psi = 	sin(sTime*sFrequency+sWavelength/10.0*h2.r+sPhase_z)*radians(w_z);
 		//float radZX = sqrt(pow(position.x,2.0)+pow(h2.r*sHeight,2.0));
 		float rad = sHeight*h2.r;
@@ -296,13 +310,14 @@ void main() {
 		float radius = length(vec2(position.x-centerX,position.y-centerY));
 		float angle = atan(position.y-centerY, position.x-centerX);
 		displacement = vec3(
-								cos(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*gaussian * gaussianX * gaussianY)* radius,
-								sin(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*gaussian * gaussianX * gaussianY)* radius,
+								cos(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*wMask)* radius,
+								sin(angle+(sin(sTime*sFrequency+radians(sPhase_z))*h2.r*w_z/100.0+sin(h2.r*sWavelength+sTime*sFrequency)*w_x/100.0)*wMask)* radius,
 								position.z
 								)+normal*  h2.r * sHeight;
+		//displacement=displacement*mask.r+(position+normal*h2.r*sHeight)*(1.0-mask.r);
 		displacedPosition = displacement+vec3(centerX,centerY,0.0);
 	}
-	displacedPosition += (w2displacement) /100.0;
+	displacedPosition += w2displacement*wMask;
 	
 	
 	vXCoord=position.x;//for fragment shader
@@ -311,6 +326,7 @@ void main() {
 	
 	cXCoord=centerX;
 	cYCoord=centerY;
+	clipPlane=clippingPlane;
 	
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(displacedPosition, 1.0);
 }
@@ -335,8 +351,6 @@ uniform float sNear;
 uniform float sFar;
 uniform float sBrightnessDepth;
 
-uniform float clippingPlane;
-
 precision mediump float;
 varying float vXCoord;
 varying float vYCoord;
@@ -344,6 +358,7 @@ varying float vZCoord;
 
 varying float cXCoord;
 varying float cYCoord;
+varying float clipPlane;
 
 uniform bool circleMode;
 
@@ -387,7 +402,7 @@ void main() {
 				color = vec3(1.0, 1.0, 1.0); // center point highlight
 		}
 	}
-	if(vZCoord<clippingPlane*sHeight)
+	if(vZCoord<clipPlane*sHeight)
 		alpha = 0.0;
 	gl_FragColor = vec4(color, alpha);
 }
@@ -423,7 +438,6 @@ gridHelper.visible = false;
 //gaussian box
 var boxVisible = false;
 var waveMode = 0;
-var w2on = false;
 var pointMode = false;
 var pointSize = 1;
 var circleMode = false;
@@ -433,6 +447,7 @@ var rotationGroup = new THREE.Group();
 var rotationPoint = new THREE.Vector3(0, 0, 0);
 rotationGroup.position.copy(rotationPoint);
 var pivot_z = 0;
+var pivot_y = 0;
 
 var sheerX = 0;
 var sheerY = 0;
@@ -479,6 +494,7 @@ function handleImageUpload(event) {
 				sTheta_depth_y: {value: 1.0},
 				sSteepness: {value: 0.0},
 				heightMap: { value: texture }, // Use same if you want
+				maskMap: { value: texture }, // Use same if you want
 				sBrightness: {value: 0.0},
 				sBrightnessDepth: {value: 0.0},
 				sContrast: {value: 0.0},
@@ -499,6 +515,7 @@ function handleImageUpload(event) {
 				pointSize: {value: 0},
 				circleMode: {value: 0},
 				centerX: {value:0},
+				maskLoaded: {value:false},
 				centerY: {value:0}
 			};
 
@@ -604,10 +621,29 @@ function handleDepthUpload(event) {
         );
     }
 }
+var maskLoaded = false;
+function handleMaskUpload(event) {
+    const file = event.target.files[0];
+	maskLoaded = true;
+    if (file) {
+        const imageURL = URL.createObjectURL(file);
+        
+        loader.load(
+            imageURL,
+            function (texture) {
+                console.log("Texture loaded:", texture);
+                // Use the texture (e.g. apply it to a mesh)
+                material.uniforms.maskMap.value = texture;
+            },
+            undefined,
+            function (err) {
+                console.error("Error loading texture:", err);
+            }
+        );
+    }
+}
 let scaleW = 1;
-let scaleW2 = 1;
 document.getElementById('scaleW').value = 1;
-document.getElementById('scaleW2').value = 1;
 function steepSine(x, steepness) {
     let s = Math.sin(x);
     
@@ -625,14 +661,14 @@ function animate(time) {
 	if(mesh!=null){
 		//position oscilation
 		mesh.position.x = steepSine(frequencyM*time/1000.0 +phase_x/360*2*Math.PI,k_value)*amplitude_x; 
-		mesh.position.y = steepSine(frequencyM*time/1000.0+phase_y/360*2*Math.PI,k_value)*amplitude_y; 
+		mesh.position.y = pivot_y + steepSine(frequencyM*time/1000.0+phase_y/360*2*Math.PI,k_value)*amplitude_y; 
 		mesh.position.z = pivot_z + steepSine(frequencyM*time/1000.0 +phase_z/360*2*Math.PI,k_value)*amplitude_z; 		
 		//rotation oscilation
 		rotationGroup.rotation.x = theta_x/360.0*Math.PI *steepSine(frequencyR*time/1000.0 +phase_x/360*2*Math.PI,k_value);
 		rotationGroup.rotation.y = theta_y/360.0*Math.PI *steepSine(frequencyR*time/1000.0 +phase_y/360*2*Math.PI,k_value);
 		rotationGroup.rotation.z = theta_z/360.0*Math.PI *steepSine(frequencyR*time/1000.0 +phase_z/360*2*Math.PI,k_value);
-		rotationGroup.position.y = distance_y;
-		rotationGroup.position.z = distance_z;
+		rotationGroup.position.y = distance_y-pivot_y;
+		rotationGroup.position.z = distance_z-pivot_z;
 		//shader variables
 		material.uniforms.sTime.value = time / 1000;		
 		material.uniforms.sHeight.value = height2;
@@ -640,16 +676,9 @@ function animate(time) {
 		material.uniforms.w_x.value = w_x*scaleW;
 		material.uniforms.w_y.value = w_y*scaleW;
 		material.uniforms.w_z.value = w_z*scaleW;
-		if(w2on){
-			material.uniforms.w_x2.value = w_x2*scaleW2;
-			material.uniforms.w_y2.value = w_y2*scaleW2;
-			material.uniforms.w_z2.value = w_z2*scaleW2;
-		}
-		else{
-			material.uniforms.w_x2.value = 0;
-			material.uniforms.w_y2.value = 0;
-			material.uniforms.w_z2.value = 0;
-		}
+		material.uniforms.w_x2.value = w_x2;
+		material.uniforms.w_y2.value = w_y2;
+		material.uniforms.w_z2.value = w_z2;
 		material.uniforms.sPhase_x.value = phase_x;
 		material.uniforms.sPhase_y.value = phase_y;
 		material.uniforms.sPhase_z.value = phase_z;
@@ -679,6 +708,7 @@ function animate(time) {
 		material.uniforms.circleMode.value = circleMode;
 		material.uniforms.centerX.value = centerX;
 		material.uniforms.centerY.value = centerY;
+		material.uniforms.maskLoaded.value = maskLoaded;
 	}
 	requestAnimationFrame(animate);
 	controls.update(); // required for damping or auto-rotate
@@ -709,7 +739,6 @@ function reset(preset)
 		if(preset == 'config.ini')
 		{
 			scaleW= 1;
-			scaleW2= 1;
 			document.getElementById("centerX").value = 0;
 			document.getElementById("centerY").value = 0;
 			
@@ -743,7 +772,8 @@ function reset(preset)
 			document.getElementById("steepnessB").value = steepnessB = parseFloat(config.settings.steepnessB);
 			boxVisible = false;
 			document.getElementById("clippingPlane").value = clippingPlane =0;
-			document.getElementById("pivot_z").value = rotationPoint.z;
+			document.getElementById("pivot_y").value = pivot_y;
+			document.getElementById("pivot_z").value = pivot_z;
 			document.getElementById("baseFloor").value = baseFloor = 0;
 			
 			document.getElementById("sheerX").value = sheerX = 0;
@@ -797,15 +827,11 @@ function getRandom(value)
 function randomize()
 {
 	let max = 40;
-	scaleW2 = getRandom(1);
 	document.getElementById("frequencyW").value = frequencyW = getRandom(max/2);
 	document.getElementById("wavelength").value = wavelength = getRandom(max);
 	document.getElementById("w_x").value = w_x = getRandom(max);
 	document.getElementById("w_y").value = w_y = getRandom(max);
 	document.getElementById("w_z").value = w_z = getRandom(max);
-	document.getElementById("w_x2").value = w_x2 = getRandom(max);
-	document.getElementById("w_y2").value = w_y2 = getRandom(max);
-	document.getElementById("w_z2").value = w_z2 = getRandom(max);
 	document.getElementById("phase_x").value = phase_x = getRandom(360);
 	document.getElementById("phase_y").value = phase_y = getRandom(360);
 	document.getElementById("phase_z").value = phase_z = getRandom(360);
